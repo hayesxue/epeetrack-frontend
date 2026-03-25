@@ -1,0 +1,2756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÉPÉEtracker — Fencing Travel Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #F5C842;
+  --gold-light: #FDE98A;
+  --gold-dark: #C9A020;
+  --navy: #0A1628;
+  --navy-mid: #162040;
+  --navy-light: #1E2E52;
+  --teal: #00C2A8;
+  --teal-light: #4DDFCC;
+  --coral: #FF6B6B;
+  --coral-light: #FF9999;
+  --white: #FFFFFF;
+  --off-white: #F8F7F2;
+  --gray-100: #F0EFE9;
+  --gray-200: #E0DED6;
+  --gray-400: #A8A49A;
+  --gray-600: #6B6760;
+  --gray-800: #3A3835;
+  --sidebar-w: 220px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(10,22,40,0.12);
+  --shadow-lg: 0 8px 48px rgba(10,22,40,0.18);
+  --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--off-white);
+  color: var(--navy);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────── */
+#sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); height: 100vh;
+  background: var(--navy);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+
+.sidebar-logo {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo .logo-mark {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  display: block;
+  line-height: 1;
+}
+.sidebar-logo .logo-sub {
+  font-size: 10px;
+  color: var(--gray-400);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.sidebar-fencer-preview {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+}
+.sidebar-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--navy-light);
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: var(--gold);
+  overflow: hidden; flex-shrink: 0;
+}
+.sidebar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sidebar-fencer-info { flex: 1; min-width: 0; }
+.sidebar-fencer-name {
+  font-size: 13px; font-weight: 600; color: var(--white);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sidebar-fencer-weapon {
+  font-size: 11px; color: var(--teal);
+  display: flex; align-items: center; gap: 4px;
+}
+
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px;
+  font-size: 14px; font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+  transition: var(--transition);
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+.nav-item.active {
+  color: var(--gold);
+  background: rgba(245,200,66,0.08);
+  border-left-color: var(--gold);
+}
+.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.nav-section-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gray-600); padding: 12px 20px 6px;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px; color: var(--gray-600);
+  text-align: center;
+}
+
+/* ─── MAIN CONTENT ────────────────────────────── */
+#main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+.page-header {
+  background: var(--white);
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.page-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; color: var(--navy);
+  letter-spacing: 1px;
+}
+.page-subtitle { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+.page-content { padding: 28px 32px; flex: 1; }
+
+/* ─── VIEWS ───────────────────────────────────── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ─── BUTTONS ─────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  border: none; cursor: pointer;
+  transition: var(--transition); text-decoration: none;
+}
+.btn-primary { background: var(--gold); color: var(--navy); }
+.btn-primary:hover { background: var(--gold-dark); transform: translateY(-1px); }
+.btn-secondary { background: var(--navy); color: var(--white); }
+.btn-secondary:hover { background: var(--navy-light); transform: translateY(-1px); }
+.btn-outline {
+  background: transparent; color: var(--navy);
+  border: 2px solid var(--gray-200);
+}
+.btn-outline:hover { border-color: var(--navy); background: var(--gray-100); }
+.btn-teal { background: var(--teal); color: var(--white); }
+.btn-teal:hover { background: var(--teal-light); color: var(--navy); }
+.btn-danger { background: var(--coral); color: var(--white); }
+.btn-danger:hover { background: var(--coral-light); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { padding: 8px; border-radius: 50%; background: var(--gray-100); border: none; cursor: pointer; font-size: 16px; transition: var(--transition); }
+.btn-icon:hover { background: var(--gray-200); }
+
+/* ─── FORMS ───────────────────────────────────── */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--gray-600); text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 6px;
+}
+.form-control {
+  width: 100%; padding: 10px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--navy);
+  background: var(--white);
+  transition: var(--transition);
+  outline: none;
+}
+.form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,200,66,0.15); }
+.form-control::placeholder { color: var(--gray-400); }
+select.form-control { cursor: pointer; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* ─── CARDS ───────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 16px; font-weight: 700; }
+.card-body { padding: 20px; }
+
+/* ─── BADGES ──────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-gold { background: var(--gold-light); color: var(--navy); }
+.badge-navy { background: var(--navy); color: var(--white); }
+.badge-teal { background: rgba(0,194,168,0.15); color: #007A6E; }
+.badge-coral { background: rgba(255,107,107,0.15); color: #CC3333; }
+.badge-gray { background: var(--gray-100); color: var(--gray-600); }
+.badge-foil { background: #EEF4FF; color: #2563EB; }
+.badge-epee { background: #F0FFF4; color: #16A34A; }
+.badge-sabre { background: #FFF7ED; color: #C2410C; }
+
+/* ─── SETUP / ONBOARDING ──────────────────────── */
+#setup-view {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--off-white);
+  padding: 40px 20px;
+}
+.setup-container {
+  width: 100%; max-width: 680px;
+}
+.setup-hero {
+  text-align: center; margin-bottom: 32px;
+}
+.setup-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px; color: var(--navy);
+  letter-spacing: 4px;
+}
+.setup-logo span { color: var(--gold); }
+.setup-tagline {
+  font-size: 16px; color: var(--gray-600);
+  margin-top: 8px;
+}
+.setup-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+}
+.setup-step-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; color: var(--navy);
+  letter-spacing: 1px; margin-bottom: 4px;
+}
+.setup-step-sub { font-size: 14px; color: var(--gray-600); margin-bottom: 28px; }
+
+.weapon-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.weapon-option {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 16px 12px;
+  text-align: center; cursor: pointer;
+  transition: var(--transition);
+}
+.weapon-option:hover { border-color: var(--gold); background: rgba(245,200,66,0.05); }
+.weapon-option.selected { border-color: var(--gold); background: rgba(245,200,66,0.1); }
+.weapon-option .weapon-icon { font-size: 28px; margin-bottom: 6px; }
+.weapon-option .weapon-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+
+.gender-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+.gender-option {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: center; cursor: pointer;
+  transition: var(--transition);
+  font-size: 14px; font-weight: 600;
+}
+.gender-option:hover { border-color: var(--teal); }
+.gender-option.selected { border-color: var(--teal); background: rgba(0,194,168,0.08); color: #007A6E; }
+
+/* ─── DASHBOARD ───────────────────────────────── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+.dashboard-left { display: flex; flex-direction: column; gap: 24px; }
+.dashboard-right { display: flex; flex-direction: column; gap: 24px; }
+
+/* Calendar */
+.calendar-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.calendar-nav {
+  display: flex; align-items: center; gap: 12px;
+}
+.cal-nav-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%; border: 2px solid var(--gray-200);
+  background: var(--white); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  transition: var(--transition); color: var(--navy);
+}
+.cal-nav-btn:hover { border-color: var(--gold); background: var(--gold); }
+.cal-range-label { font-size: 14px; font-weight: 600; color: var(--navy); }
+
+.calendar-weeks { display: flex; flex-direction: column; gap: 4px; }
+.week-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 4px; align-items: stretch;
+}
+.week-label {
+  font-size: 11px; font-weight: 700; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  display: flex; align-items: center; padding-right: 8px;
+}
+.day-cell {
+  min-height: 64px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  border: 1px solid var(--gray-100);
+  position: relative;
+  transition: var(--transition);
+}
+.day-cell:hover { border-color: var(--gold); }
+.day-cell.today { border-color: var(--teal); background: rgba(0,194,168,0.04); }
+.day-cell.today .day-num { color: var(--teal); font-weight: 700; }
+.day-cell.has-event { background: rgba(245,200,66,0.06); }
+.day-cell.past { opacity: 0.5; }
+.day-num { font-size: 12px; font-weight: 600; color: var(--gray-600); }
+.day-header-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 4px; margin-bottom: 4px;
+}
+.day-header-cell {
+  text-align: center;
+  font-size: 11px; font-weight: 700;
+  color: var(--gray-400); text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 0;
+}
+.cal-event {
+  font-size: 10px; font-weight: 600;
+  background: var(--gold-light);
+  color: var(--navy);
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer;
+  border-left: 2px solid var(--gold);
+}
+.cal-event.nat { background: rgba(10,22,40,0.08); border-left-color: var(--navy); }
+.cal-event.lesson { background: rgba(0,194,168,0.12); border-left-color: var(--teal); }
+.cal-event.urgent { background: rgba(255,107,107,0.12); border-left-color: var(--coral); }
+
+/* Week summary */
+.week-summary { margin-top: 24px; }
+.week-summary-title {
+  font-size: 14px; font-weight: 700; color: var(--navy);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.summary-items { display: flex; flex-direction: column; gap: 8px; }
+.summary-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-100);
+  font-size: 13px;
+}
+.summary-item .si-date {
+  font-size: 11px; color: var(--gray-400); min-width: 80px;
+}
+.summary-item .si-title { font-weight: 600; flex: 1; }
+.summary-item .si-badge { }
+
+/* Alert cards */
+.alert-card {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 8px;
+}
+.alert-card.warning { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); }
+.alert-card.info { background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3); }
+.alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.alert-content .alert-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+.alert-content .alert-desc { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+/* Stats strip */
+.stats-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 4px;
+  border-left: 4px solid transparent;
+}
+.stat-card.gold-accent { border-left-color: var(--gold); }
+.stat-card.teal-accent { border-left-color: var(--teal); }
+.stat-card.navy-accent { border-left-color: var(--navy); }
+.stat-card.coral-accent { border-left-color: var(--coral); }
+.stat-label { font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--navy); line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--gray-400); }
+
+/* ─── FENCERS PAGE ────────────────────────────── */
+.fencer-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+.fencer-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.fencer-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.fencer-card-banner {
+  height: 80px;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  position: relative;
+  display: flex; align-items: flex-end; padding: 12px 16px;
+}
+.fencer-card-banner .weapon-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px; color: rgba(255,255,255,0.08);
+  position: absolute; right: 12px; top: 0; line-height: 1;
+}
+.fencer-avatar-large {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--gold);
+  background: var(--navy-light);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px; color: var(--gold);
+  overflow: hidden; flex-shrink: 0;
+  margin-bottom: -32px;
+  position: relative; z-index: 2;
+}
+.fencer-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+.fencer-card-body { padding: 36px 16px 16px; }
+.fencer-name { font-size: 18px; font-weight: 700; color: var(--navy); }
+.fencer-meta { font-size: 13px; color: var(--gray-600); margin-top: 4px; }
+.fencer-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.fencer-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+/* Membership / Equipment / etc tabs */
+.sub-tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+.sub-tab {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 2px solid var(--gray-200);
+  color: var(--gray-600); background: var(--white);
+  transition: var(--transition);
+}
+.sub-tab:hover { border-color: var(--gold); color: var(--navy); }
+.sub-tab.active { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+
+/* ─── TOURNAMENT BROWSE ───────────────────────── */
+.filter-bar {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+}
+.filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+.filter-label { font-size: 11px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.8px; }
+
+.month-group { margin-bottom: 28px; }
+.month-header {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; color: var(--navy);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.month-header::after {
+  content: ''; flex: 1; height: 2px;
+  background: var(--gray-200);
+}
+
+.tournament-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.tournament-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border-top: 4px solid var(--gold);
+  transition: var(--transition);
+}
+.tournament-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.tournament-card.nationals { border-top-color: var(--navy); }
+.tournament-card.added { border-top-color: var(--teal); opacity: 0.7; }
+.tc-header { padding: 14px 16px; }
+.tc-tier { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.tc-tier.nat { color: var(--navy); }
+.tc-tier.reg { color: var(--gold-dark); }
+.tc-name { font-size: 15px; font-weight: 700; color: var(--navy); }
+.tc-location { font-size: 12px; color: var(--gray-600); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+.tc-body { padding: 10px 16px; border-top: 1px solid var(--gray-100); }
+.tc-dates { font-size: 13px; font-weight: 600; color: var(--navy); }
+.tc-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tc-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--gray-100);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ─── MY SEASON ───────────────────────────────── */
+.season-list { display: flex; flex-direction: column; gap: 16px; }
+.season-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition);
+  border-left: 5px solid var(--gold);
+}
+.season-card:hover { transform: translateX(4px); box-shadow: var(--shadow-lg); }
+.season-card.nationals { border-left-color: var(--navy); }
+.season-card-inner {
+  display: grid;
+  grid-template-columns: 180px 1fr auto auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.sc-dates { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--gray-600); }
+.sc-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+.sc-sub { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+.sc-fencer-badges { display: flex; gap: 4px; }
+.sc-fencer-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--navy-light); border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  overflow: hidden;
+}
+.sc-fencer-badge img { width: 100%; height: 100%; object-fit: cover; }
+.sc-booking {
+  text-align: center; min-width: 90px;
+}
+.booking-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; margin-right: 6px;
+}
+.booking-dot.booked { background: var(--teal); }
+.booking-dot.partial { background: var(--gold); }
+.booking-dot.unbooked { background: var(--coral); }
+
+/* ─── FINANCIALS ──────────────────────────────── */
+.financials-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.financial-stat {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.fs-label { font-size: 12px; color: var(--gray-600); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+.fs-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--navy); margin-top: 4px; }
+.fs-value.income { color: var(--teal); }
+.fs-value.expense { color: var(--coral); }
+.fs-value.net.positive { color: var(--teal); }
+.fs-value.net.negative { color: var(--coral); }
+
+.transaction-list { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.transaction-row {
+  display: grid; grid-template-columns: 120px 1fr 120px 80px 80px;
+  align-items: center; gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 13px;
+  transition: var(--transition);
+}
+.transaction-row:hover { background: var(--gray-100); }
+.transaction-row.header {
+  background: var(--navy); color: var(--white);
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.tr-amount.income { color: var(--teal); font-weight: 700; }
+.tr-amount.expense { color: var(--coral); font-weight: 700; }
+
+/* ─── MODAL ───────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10,22,40,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white);
+  border-radius: 20px;
+  width: 100%; max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.95); transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: scale(1); }
+.modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--white); z-index: 2;
+}
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--navy); letter-spacing: 1px; }
+.modal-body { padding: 24px 28px; }
+.modal-footer {
+  padding: 16px 28px;
+  border-top: 1px solid var(--gray-100);
+  display: flex; gap: 10px; justify-content: flex-end;
+  position: sticky; bottom: 0; background: var(--white);
+}
+
+/* ─── UPLOAD ZONE ─────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--gray-100);
+}
+.upload-zone:hover { border-color: var(--gold); background: rgba(245,200,66,0.05); }
+.upload-zone.drag-over { border-color: var(--gold); background: rgba(245,200,66,0.1); }
+.upload-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--gray-600); }
+.upload-text strong { color: var(--navy); }
+
+/* ─── SCHEDULE LESSONS ────────────────────────── */
+.lesson-schedule {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 8px; margin-bottom: 12px;
+}
+.lesson-day {
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+.lesson-day:hover { border-color: var(--gold); }
+.lesson-day.selected { background: var(--gold-light); border-color: var(--gold); }
+.lesson-day .ld-name { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--gray-600); }
+.lesson-day.selected .ld-name { color: var(--navy); }
+
+/* ─── EMPTY STATE ─────────────────────────────── */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--gray-400);
+}
+.empty-state .es-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state .es-title { font-size: 18px; font-weight: 700; color: var(--gray-600); margin-bottom: 8px; }
+.empty-state .es-desc { font-size: 14px; }
+
+/* ─── TRAVEL DETAIL ───────────────────────────── */
+.travel-section { margin-bottom: 20px; }
+.travel-section-title {
+  font-size: 12px; font-weight: 700; color: var(--gray-600);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.travel-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.travel-item .ti-icon { font-size: 20px; }
+.travel-item .ti-info { flex: 1; }
+.travel-item .ti-amount { font-weight: 700; color: var(--coral); }
+
+/* ─── EXPENSE REPORT ──────────────────────────── */
+.report-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.rc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.rc-title { font-size: 16px; font-weight: 700; }
+.rc-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px; font-weight: 700;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 3px; }
+
+/* ─── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .stats-strip { grid-template-columns: 1fr 1fr; }
+  .season-card-inner { grid-template-columns: 1fr; }
+}
+
+/* ─── TABS in detail views ───────────────────── */
+.detail-tabs { display: flex; border-bottom: 2px solid var(--gray-200); margin-bottom: 20px; gap: 0; }
+.detail-tab {
+  padding: 10px 20px; font-size: 14px; font-weight: 600;
+  color: var(--gray-600); cursor: pointer; transition: var(--transition);
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.detail-tab:hover { color: var(--navy); }
+.detail-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+/* Notification dot */
+.notif-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--coral);
+  margin-left: 6px; vertical-align: middle;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.8); }
+}
+
+/* Tooltips */
+.tooltip { position: relative; }
+.tooltip:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: 120%; left: 50%;
+  transform: translateX(-50%);
+  background: var(--navy); color: var(--white);
+  font-size: 11px; padding: 5px 10px;
+  border-radius: 6px; white-space: nowrap;
+  pointer-events: none; z-index: 999;
+}
+</style>
+
+<!-- ═══ AUTH SCREEN ══════════════════════════════════════════════ -->
+<div id="auth-view" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--navy);padding:40px 20px;">
+  <div style="width:100%;max-width:420px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--white);letter-spacing:4px">ÉPÉE<span style="color:var(--gold)">track</span></div>
+      <p style="font-size:14px;color:rgba(255,255,255,0.5);margin-top:8px">Fencing Travel & Season Manager</p>
+    </div>
+    <div style="background:white;border-radius:20px;padding:36px;box-shadow:0 24px 64px rgba(0,0,0,0.4)">
+      <!-- Tab toggle -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;background:var(--gray-100);border-radius:10px;padding:4px;margin-bottom:28px">
+        <button id="auth-login-tab" onclick="authTab('login')" style="padding:10px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all 0.2s">Sign In</button>
+        <button id="auth-signup-tab" onclick="authTab('signup')" style="padding:10px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray-600);transition:all 0.2s">Create Account</button>
+      </div>
+      <div id="auth-error" style="display:none;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:12px;font-size:13px;color:var(--coral);margin-bottom:16px"></div>
+      <!-- Login form -->
+      <div id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:15px;margin-top:8px" onclick="doLogin()">Sign In</button>
+      </div>
+      <!-- Signup form -->
+      <div id="signup-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control" id="signup-name" placeholder="Alex Johnson">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="signup-email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="signup-password" placeholder="Min. 8 characters">
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:15px;margin-top:8px" onclick="doSignup()">Create Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETUP SCREEN (shows when no fencers) ════════════════════ -->
+<div id="setup-view">
+  <div class="setup-container">
+    <div class="setup-hero">
+      <div class="setup-logo">ÉPÉE<span>track</span></div>
+      <p class="setup-tagline">Your complete fencing travel & season manager</p>
+    </div>
+    <div class="setup-card">
+      <div class="setup-step-title">Create Your Fencer Profile</div>
+      <p class="setup-step-sub">Let's get started by setting up your first fencer</p>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-control" id="setup-firstname" placeholder="Alex">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="setup-lastname" placeholder="Johnson">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <div class="gender-selector">
+          <div class="gender-option" onclick="selectGender('M',this)">♂ Male</div>
+          <div class="gender-option" onclick="selectGender('F',this)">♀ Female</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" class="form-control" id="setup-dob">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <select class="form-control" id="setup-country">
+            <option value="USA">United States</option>
+            <option value="CAN">Canada</option>
+            <option value="GBR">Great Britain</option>
+            <option value="FRA">France</option>
+            <option value="ITA">Italy</option>
+            <option value="HUN">Hungary</option>
+            <option value="KOR">South Korea</option>
+            <option value="CHN">China</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Weapon (select one)</label>
+        <div class="weapon-selector">
+          <div class="weapon-option" onclick="selectWeapon('foil',this)">
+            <div class="weapon-icon">🤺</div>
+            <div class="weapon-name">Foil</div>
+          </div>
+          <div class="weapon-option" onclick="selectWeapon('epee',this)">
+            <div class="weapon-icon">⚔️</div>
+            <div class="weapon-name">Épée</div>
+          </div>
+          <div class="weapon-option" onclick="selectWeapon('sabre',this)">
+            <div class="weapon-icon">🗡️</div>
+            <div class="weapon-name">Sabre</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Primary Club</label>
+          <input type="text" class="form-control" id="setup-club1" placeholder="Club name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secondary Club (optional)</label>
+          <input type="text" class="form-control" id="setup-club2" placeholder="Club name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Primary Coach</label>
+          <input type="text" class="form-control" id="setup-coach1" placeholder="Coach name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secondary Coach (optional)</label>
+          <input type="text" class="form-control" id="setup-coach2" placeholder="Coach name">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%; justify-content:center; padding:14px; font-size:16px;" onclick="completeSetup()">
+        🏁 Create Profile & Enter App
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP SHELL ════════════════════════════════════════════════ -->
+<div id="app-shell" style="display:none;">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-mark">ÉPÉEtrack</span>
+    <div class="logo-sub">Fencing Travel Manager</div>
+  </div>
+  <div class="sidebar-fencer-preview" onclick="navigate('fencers')">
+    <div class="sidebar-avatar" id="sb-avatar">?</div>
+    <div class="sidebar-fencer-info">
+      <div class="sidebar-fencer-name" id="sb-name">No Fencer</div>
+      <div class="sidebar-fencer-weapon" id="sb-weapon">—</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="navigate('dashboard')" data-view="dashboard">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-section-label">Season</div>
+    <div class="nav-item" onclick="navigate('browse')" data-view="browse">
+      <span class="nav-icon">🔍</span> Browse Tournaments
+    </div>
+    <div class="nav-item" onclick="navigate('season')" data-view="season">
+      <span class="nav-icon">📅</span> My Season
+    </div>
+    <div class="nav-section-label">Management</div>
+    <div class="nav-item" onclick="navigate('fencers')" data-view="fencers">
+      <span class="nav-icon">🏅</span> Fencers
+    </div>
+    <div class="nav-item" onclick="navigate('financials')" data-view="financials">
+      <span class="nav-icon">💰</span> Financials
+    </div>
+    <div class="nav-item" onclick="navigate('reports')" data-view="reports">
+      <span class="nav-icon">📋</span> Reports
+    </div>
+  </nav>
+  <div class="sidebar-footer">2025–26 Season</div>
+</nav>
+
+<div id="main">
+
+<!-- ═══ DASHBOARD VIEW ════════════════════════════ -->
+<div id="dashboard-view" class="view active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-subtitle" id="dash-subtitle">Your season at a glance</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-sm" onclick="navigate('browse')">+ Add Tournament</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="stats-strip">
+      <div class="stat-card gold-accent">
+        <div class="stat-label">Tournaments</div>
+        <div class="stat-value" id="stat-tournaments">0</div>
+        <div class="stat-sub">In my season</div>
+      </div>
+      <div class="stat-card teal-accent">
+        <div class="stat-label">Next Event</div>
+        <div class="stat-value" id="stat-days">—</div>
+        <div class="stat-sub">Days away</div>
+      </div>
+      <div class="stat-card coral-accent">
+        <div class="stat-label">Unbooked</div>
+        <div class="stat-value" id="stat-unbooked">0</div>
+        <div class="stat-sub">Need attention</div>
+      </div>
+      <div class="stat-card navy-accent">
+        <div class="stat-label">Season Spend</div>
+        <div class="stat-value" id="stat-spend">$0</div>
+        <div class="stat-sub">Total expenses</div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dashboard-left">
+        <!-- 4-Week Calendar -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📅 4-Week Lookahead</div>
+            <div class="calendar-nav">
+              <button class="cal-nav-btn" onclick="calNav(-1)">◀</button>
+              <span class="cal-range-label" id="cal-range">—</span>
+              <button class="cal-nav-btn" onclick="calNav(1)">▶</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="day-header-row">
+              <div></div>
+              <div class="day-header-cell">Sun</div>
+              <div class="day-header-cell">Mon</div>
+              <div class="day-header-cell">Tue</div>
+              <div class="day-header-cell">Wed</div>
+              <div class="day-header-cell">Thu</div>
+              <div class="day-header-cell">Fri</div>
+              <div class="day-header-cell">Sat</div>
+            </div>
+            <div class="calendar-weeks" id="calendar-weeks"></div>
+          </div>
+        </div>
+
+        <!-- This Week -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🗓️ This Week</div>
+            <span class="badge badge-gold" id="this-week-label">—</span>
+          </div>
+          <div class="card-body">
+            <div class="summary-items" id="this-week-items">
+              <div class="empty-state" style="padding:20px">
+                <div class="es-icon">☀️</div>
+                <div class="es-title">Clear week ahead</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-right">
+        <!-- Alerts -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚠️ Needs Attention</div>
+          </div>
+          <div class="card-body" id="alerts-container">
+            <div style="font-size:13px;color:var(--gray-400);text-align:center;padding:12px">No alerts</div>
+          </div>
+        </div>
+
+        <!-- Upcoming Tournaments -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏆 Upcoming Events</div>
+          </div>
+          <div class="card-body" id="upcoming-events" style="padding:0">
+            <div style="font-size:13px;color:var(--gray-400);text-align:center;padding:24px">Add tournaments to see upcoming events</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FENCERS VIEW ══════════════════════════════ -->
+<div id="fencers-view" class="view">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Fencers</div>
+      <div class="page-subtitle">Manage fencer profiles</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="openAddFencerModal()">+ Add Fencer</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div id="fencer-list-view">
+      <div class="fencer-cards" id="fencer-cards-container"></div>
+    </div>
+    <div id="fencer-detail-view" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ═══ BROWSE TOURNAMENTS VIEW ════════════════════ -->
+<div id="browse-view" class="view">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Browse Tournaments</div>
+      <div class="page-subtitle">2025–26 USA Fencing Season</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">Tier</label>
+        <select class="form-control" id="filter-tier" onchange="filterTournaments()">
+          <option value="all">All Events</option>
+          <option value="nationals">Nationals Only</option>
+          <option value="regional">Regional Only</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Weapon</label>
+        <select class="form-control" id="filter-weapon" onchange="filterTournaments()">
+          <option value="all">All Weapons</option>
+          <option value="foil">Foil</option>
+          <option value="epee">Épée</option>
+          <option value="sabre">Sabre</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Gender</label>
+        <select class="form-control" id="filter-gender" onchange="filterTournaments()">
+          <option value="all">All</option>
+          <option value="M">Men's / Boys'</option>
+          <option value="F">Women's / Girls'</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Age Category</label>
+        <select class="form-control" id="filter-age" onchange="filterTournaments()">
+          <option value="all">All Ages</option>
+          <option value="Y10">Y10 (under 10)</option>
+          <option value="Y12">Y12 (under 12)</option>
+          <option value="Y14">Y14 (under 14)</option>
+          <option value="Cadet">Cadet (under 17)</option>
+          <option value="Junior">Junior (under 20)</option>
+          <option value="Senior">Senior (20+)</option>
+          <option value="Vet">Veteran (40+)</option>
+        </select>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+    </div>
+    <div id="tournament-browse-list"></div>
+  </div>
+</div>
+
+<!-- ═══ MY SEASON VIEW ════════════════════════════ -->
+<div id="season-view" class="view">
+  <div class="page-header">
+    <div>
+      <div class="page-title">My Season</div>
+      <div class="page-subtitle">2025–26 USA Fencing</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline btn-sm" onclick="navigate('browse')">+ Browse Tournaments</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div id="season-list-view">
+      <div class="season-list" id="season-cards-container"></div>
+    </div>
+    <div id="season-detail-view" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ═══ FINANCIALS VIEW ═══════════════════════════ -->
+<div id="financials-view" class="view">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Financials</div>
+      <div class="page-subtitle">Track income & expenses</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-sm" onclick="openAddTransactionModal()">+ Add Transaction</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="financials-grid">
+      <div class="financial-stat">
+        <div class="fs-label">Total Income</div>
+        <div class="fs-value income" id="fin-income">$0</div>
+      </div>
+      <div class="financial-stat">
+        <div class="fs-label">Total Expenses</div>
+        <div class="fs-value expense" id="fin-expense">$0</div>
+      </div>
+      <div class="financial-stat">
+        <div class="fs-label">Net</div>
+        <div class="fs-value net" id="fin-net">$0</div>
+      </div>
+    </div>
+
+    <div class="sub-tabs">
+      <div class="sub-tab active" onclick="finTab('all',this)">All Transactions</div>
+      <div class="sub-tab" onclick="finTab('tournaments',this)">Tournament Costs</div>
+      <div class="sub-tab" onclick="finTab('equipment',this)">Equipment</div>
+      <div class="sub-tab" onclick="finTab('lessons',this)">Lessons</div>
+      <div class="sub-tab" onclick="finTab('memberships',this)">Memberships</div>
+      <div class="sub-tab" onclick="finTab('income',this)">Income</div>
+    </div>
+
+    <div class="transaction-list">
+      <div class="transaction-row header">
+        <div>Date</div>
+        <div>Description</div>
+        <div>Category</div>
+        <div>Fencer</div>
+        <div style="text-align:right">Amount</div>
+      </div>
+      <div id="transaction-rows">
+        <div style="text-align:center;padding:32px;color:var(--gray-400);font-size:14px">No transactions yet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REPORTS VIEW ══════════════════════════════ -->
+<div id="reports-view" class="view">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Reports</div>
+      <div class="page-subtitle">Expense reports & templates</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-sm" onclick="openAddReportModal()">+ Generate Report</button>
+      <button class="btn btn-outline btn-sm" onclick="openUploadTemplateModal()">📎 Upload Template</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="form-row" style="margin-bottom:24px">
+      <div class="card" style="padding:20px">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">By Tournament</div>
+        <div id="report-by-tournament">
+          <div style="font-size:13px;color:var(--gray-400)">Add tournaments and transactions to generate reports</div>
+        </div>
+      </div>
+      <div class="card" style="padding:20px">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px">Saved Templates</div>
+        <div id="report-templates">
+          <div class="upload-zone" onclick="document.getElementById('template-upload').click()">
+            <input type="file" id="template-upload" style="display:none" accept=".pdf,.docx,.xlsx" onchange="handleTemplateUpload(event)">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text"><strong>Upload expense form template</strong><br>PDF, Word, or Excel</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #main -->
+</div><!-- end #app-shell -->
+
+<!-- ═══ MODALS ════════════════════════════════════════════════════ -->
+
+<!-- Add/Edit Fencer Modal -->
+<div class="modal-overlay" id="fencer-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="fencer-modal-title">Add Fencer</div>
+      <button class="btn-icon" onclick="closeModal('fencer-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-control" id="fm-firstname">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-control" id="fm-lastname">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <div class="gender-selector">
+          <div class="gender-option" id="fm-gender-M" onclick="fmSelectGender('M')">♂ Male</div>
+          <div class="gender-option" id="fm-gender-F" onclick="fmSelectGender('F')">♀ Female</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" class="form-control" id="fm-dob">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <select class="form-control" id="fm-country">
+            <option value="USA">United States</option>
+            <option value="CAN">Canada</option>
+            <option value="GBR">Great Britain</option>
+            <option value="FRA">France</option>
+            <option value="ITA">Italy</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Weapon</label>
+        <div class="weapon-selector">
+          <div class="weapon-option" id="fm-weapon-foil" onclick="fmSelectWeapon('foil')"><div class="weapon-icon">🤺</div><div class="weapon-name">Foil</div></div>
+          <div class="weapon-option" id="fm-weapon-epee" onclick="fmSelectWeapon('epee')"><div class="weapon-icon">⚔️</div><div class="weapon-name">Épée</div></div>
+          <div class="weapon-option" id="fm-weapon-sabre" onclick="fmSelectWeapon('sabre')"><div class="weapon-icon">🗡️</div><div class="weapon-name">Sabre</div></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Primary Club</label>
+          <input type="text" class="form-control" id="fm-club1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secondary Club</label>
+          <input type="text" class="form-control" id="fm-club2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Primary Coach</label>
+          <input type="text" class="form-control" id="fm-coach1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secondary Coach</label>
+          <input type="text" class="form-control" id="fm-coach2">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Profile Photo</label>
+        <div class="upload-zone" onclick="document.getElementById('fencer-photo-upload').click()">
+          <input type="file" id="fencer-photo-upload" style="display:none" accept="image/*" onchange="handleFencerPhoto(event)">
+          <div class="upload-icon" id="photo-preview-icon">📷</div>
+          <div class="upload-text" id="photo-preview-text">Click to upload a photo</div>
+        </div>
+        <input type="hidden" id="fm-photo">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('fencer-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFencer()">Save Fencer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Tournament to Season Modal -->
+<div class="modal-overlay" id="add-to-season-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="ats-title">Add to My Season</div>
+      <button class="btn-icon" onclick="closeModal('add-to-season-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="ats-tournament-info" style="background:var(--gray-100);border-radius:var(--radius-sm);padding:14px;margin-bottom:20px"></div>
+      <div class="form-group">
+        <label class="form-label">Which fencers are attending?</label>
+        <div id="ats-fencer-checkboxes"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Departure Date</label>
+          <input type="date" class="form-control" id="ats-depart">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Return Date</label>
+          <input type="date" class="form-control" id="ats-return">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="ats-notes" rows="2" placeholder="Any notes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('add-to-season-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAddToSeason()">Add to Season</button>
+    </div>
+  </div>
+</div>
+
+<!-- Travel Details Modal -->
+<div class="modal-overlay" id="travel-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <div class="modal-title" id="travel-modal-title">Travel Details</div>
+      <button class="btn-icon" onclick="closeModal('travel-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="travel-modal-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('travel-modal')">Close</button>
+      <button class="btn btn-primary" onclick="saveTravelDetails()">Save Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Transaction Modal -->
+<div class="modal-overlay" id="transaction-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Transaction</div>
+      <button class="btn-icon" onclick="closeModal('transaction-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" id="tx-type">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount ($)</label>
+          <input type="number" class="form-control" id="tx-amount" placeholder="0.00" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input type="text" class="form-control" id="tx-desc" placeholder="e.g. Hotel - Salt Lake City">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-control" id="tx-category">
+            <option value="tournament">Tournament Fees</option>
+            <option value="travel">Travel</option>
+            <option value="accommodation">Hotel/Accommodation</option>
+            <option value="equipment">Equipment</option>
+            <option value="lessons">Private Lessons</option>
+            <option value="memberships">Memberships</option>
+            <option value="camps">Camps</option>
+            <option value="meals">Meals</option>
+            <option value="income">Income/Reimbursement</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" id="tx-date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Linked Tournament (optional)</label>
+        <select class="form-control" id="tx-tournament">
+          <option value="">— None —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fencer</label>
+        <select class="form-control" id="tx-fencer">
+          <option value="">— All / General —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Receipt (optional)</label>
+        <div class="upload-zone" onclick="document.getElementById('receipt-upload').click()">
+          <input type="file" id="receipt-upload" style="display:none" accept="image/*,.pdf" onchange="handleReceiptUpload(event)">
+          <div class="upload-icon">🧾</div>
+          <div class="upload-text" id="receipt-upload-text">Click to upload receipt</div>
+        </div>
+        <input type="hidden" id="tx-receipt">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('transaction-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransaction()">Save Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fencer Sub-items Modal (memberships, equipment, camps, lessons) -->
+<div class="modal-overlay" id="fencer-item-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="fi-modal-title">Add Item</div>
+      <button class="btn-icon" onclick="closeModal('fencer-item-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="fi-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('fencer-item-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFencerItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG — point this at your deployed backend
+// ═══════════════════════════════════════════════════════════
+const API_BASE = 'https://epeetrack-backend-production.up.railway.app'; // ← replace after deployment
+
+// ═══════════════════════════════════════════════════════════
+// AUTH HELPERS
+// ═══════════════════════════════════════════════════════════
+let currentUser = null;
+
+function getToken() { return localStorage.getItem('epeetrack_token'); }
+function setToken(t) { localStorage.setItem('epeetrack_token', t); }
+function clearToken() { localStorage.removeItem('epeetrack_token'); }
+
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + getToken() }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API_BASE + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+async function uploadFile(endpoint, file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await fetch(API_BASE + endpoint, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + getToken() },
+    body: fd
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUTH UI
+// ═══════════════════════════════════════════════════════════
+function authTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('login-form').style.display = isLogin ? '' : 'none';
+  document.getElementById('signup-form').style.display = isLogin ? 'none' : '';
+  document.getElementById('auth-login-tab').style.cssText = isLogin
+    ? 'padding:10px;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all 0.2s'
+    : 'padding:10px;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray-600);transition:all 0.2s';
+  document.getElementById('auth-signup-tab').style.cssText = !isLogin
+    ? 'padding:10px;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all 0.2s'
+    : 'padding:10px;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray-600);transition:all 0.2s';
+  showAuthError('');
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = msg ? '' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password });
+    setToken(data.token);
+    currentUser = data.user;
+    enterApp();
+  } catch (e) { showAuthError(e.message); }
+}
+
+async function doSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  if (!name || !email || !password) { showAuthError('All fields are required.'); return; }
+  try {
+    const data = await api('POST', '/api/auth/signup', { name, email, password });
+    setToken(data.token);
+    currentUser = data.user;
+    enterApp();
+  } catch (e) { showAuthError(e.message); }
+}
+
+function doLogout() {
+  clearToken();
+  currentUser = null;
+  appData = getDefaultData();
+  document.getElementById('auth-view').style.display = 'flex';
+  document.getElementById('setup-view').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════
+// APP STATE (in-memory, populated from API)
+// ═══════════════════════════════════════════════════════════
+function getDefaultData() {
+  return { fencers: [], seasonEvents: [], transactions: [], templates: [], calendarOffset: 0 };
+}
+let appData = getDefaultData();
+
+// calendar offset stored in memory only (not critical to persist)
+let calOffset = 0;
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('setup-view').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('auth-view').style.display = 'flex';
+
+  const token = getToken();
+  if (token) {
+    try {
+      const user = await api('GET', '/api/auth/me');
+      currentUser = user;
+      await enterApp();
+    } catch(e) {
+      clearToken();
+    }
+  }
+});
+
+async function enterApp() {
+  document.getElementById('auth-view').style.display = 'none';
+  document.getElementById('setup-view').style.display = 'none';
+
+  // Load all data from API
+  await loadAllData();
+
+  if (appData.fencers.length === 0) {
+    // Show fencer setup screen for first-time users
+    document.getElementById('setup-view').style.display = 'flex';
+  } else {
+    document.getElementById('app-shell').style.display = '';
+    addLogoutButton();
+    initApp();
+  }
+}
+
+function addLogoutButton() {
+  const footer = document.querySelector('.sidebar-footer');
+  if (footer && !document.getElementById('logout-btn')) {
+    footer.innerHTML = `
+      <div>2025–26 Season</div>
+      <div style="margin-top:6px;font-size:11px;color:var(--gray-400)">${currentUser?.name || ''}</div>
+      <button id="logout-btn" onclick="doLogout()" style="margin-top:8px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;width:100%">Sign Out</button>
+    `;
+  }
+}
+
+async function loadAllData() {
+  try {
+    const [fencers, seasons, transactions, templates] = await Promise.all([
+      api('GET', '/api/fencers'),
+      api('GET', '/api/seasons'),
+      api('GET', '/api/transactions'),
+      api('GET', '/api/transactions/report-templates')
+    ]);
+
+    // Map API response to the shape the existing render functions expect
+    appData.fencers = fencers.map(f => ({
+      id: f.id,
+      firstName: f.first_name,
+      lastName: f.last_name,
+      gender: f.gender,
+      dob: f.dob ? f.dob.slice(0,10) : '',
+      country: f.country || 'USA',
+      weapon: f.weapon,
+      club1: f.club1 || '',
+      club2: f.club2 || '',
+      coach1: f.coach1 || '',
+      coach2: f.coach2 || '',
+      photo: f.photo_url || '',
+      memberships: f.memberships || [],
+      equipment: f.equipment || [],
+      camps: f.camps || [],
+      lessons: f.lessons || []
+    }));
+
+    appData.seasonEvents = seasons.map(se => ({
+      id: se.id,
+      tournamentId: se.tournament_id,
+      fencerIds: se.fencer_ids || [],
+      departDate: se.depart_date ? se.depart_date.slice(0,10) : '',
+      returnDate: se.return_date ? se.return_date.slice(0,10) : '',
+      flightBooked: se.flight_booked || false,
+      hotelBooked: se.hotel_booked || false,
+      carBooked: se.car_booked || false,
+      notes: se.notes || '',
+      docs: (se.travel_docs || []).map(d => ({ name: d.file_name, data: d.file_url, id: d.id }))
+    }));
+
+    appData.transactions = transactions.map(tx => ({
+      id: tx.id,
+      txType: tx.tx_type,
+      amount: tx.amount,
+      description: tx.description,
+      category: tx.category,
+      date: tx.date ? tx.date.slice(0,10) : '',
+      tournamentId: tx.tournament_id || '',
+      fencerId: tx.fencer_id || '',
+      receipt: tx.receipt_url || ''
+    }));
+
+    appData.templates = templates.map(t => ({
+      id: t.id,
+      name: t.name,
+      data: t.file_url,
+      date: t.uploaded_at ? t.uploaded_at.slice(0,10) : ''
+    }));
+  } catch(e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+// Save functions (no-op compatibility shim — actual saves happen per-action below)
+function saveData() { /* data is saved via API calls, not localStorage */ }
+
+// ═══════════════════════════════════════════════════════════
+// TOURNAMENT DATA — 2025-26 USA FENCING (unchanged)
+// ═══════════════════════════════════════════════════════════
+const TOURNAMENTS = [
+  // ── NATIONALS ──
+  {
+    id: 'nac-oct-2025', tier: 'nationals', name: 'October NAC',
+    city: 'Salt Lake City', state: 'UT', venue: 'Salt Palace Convention Center',
+    startDate: '2025-10-10', endDate: '2025-10-13',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Vet'],
+    url: 'https://member.usafencing.org/search/tournaments',
+    description: 'Season-opening National Arsenal Cup'
+  },
+  {
+    id: 'nac-nov-2025', tier: 'nationals', name: 'November NAC',
+    city: 'Fort Worth', state: 'TX', venue: 'Fort Worth Convention Center',
+    startDate: '2025-11-21', endDate: '2025-11-24',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments',
+    description: 'National Arsenal Cup – Fort Worth'
+  },
+  {
+    id: 'joc-jan-2026', tier: 'nationals', name: 'Junior Olympic Championships',
+    city: 'Kansas City', state: 'MO', venue: 'Kansas City Convention Center',
+    startDate: '2026-01-02', endDate: '2026-01-05',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments',
+    description: 'Junior Olympic Championships — all junior ages'
+  },
+  {
+    id: 'sjcc-jan-2026', tier: 'nationals', name: 'January SJCC',
+    city: 'Memphis', state: 'TN', venue: 'Memphis Cook Convention Center',
+    startDate: '2026-01-16', endDate: '2026-01-19',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments',
+    description: 'Sunshine Junior Circuit Championships'
+  },
+  {
+    id: 'nac-feb-2026', tier: 'nationals', name: 'February NAC',
+    city: 'Cincinnati', state: 'OH', venue: 'Duke Energy Convention Center',
+    startDate: '2026-02-13', endDate: '2026-02-16',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Vet'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'nac-mar-2026', tier: 'nationals', name: 'March NAC',
+    city: 'Cleveland', state: 'OH', venue: 'Huntington Convention Center',
+    startDate: '2026-03-13', endDate: '2026-03-16',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'nac-apr-2026', tier: 'nationals', name: 'April NAC',
+    city: 'Richmond', state: 'VA', venue: 'Greater Richmond Convention Center',
+    startDate: '2026-04-10', endDate: '2026-04-13',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Vet','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'sjcc-jun-2026', tier: 'nationals', name: 'June SJCC',
+    city: 'Las Vegas', state: 'NV', venue: 'Las Vegas Convention Center',
+    startDate: '2026-06-12', endDate: '2026-06-15',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'nationals-2026', tier: 'nationals', name: 'Summer Nationals',
+    city: 'Portland', state: 'OR', venue: 'Oregon Convention Center',
+    startDate: '2026-07-03', endDate: '2026-07-13',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Vet','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments',
+    description: 'USA Fencing Summer Nationals — all divisions'
+  },
+  // ── REGIONALS ──
+  {
+    id: 'roc-sep-2025-1', tier: 'regional', name: 'Rocky Mountain Open',
+    city: 'Denver', state: 'CO', venue: 'Colorado Convention Center',
+    startDate: '2025-09-06', endDate: '2025-09-07',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'pnw-sep-2025', tier: 'regional', name: 'Pacific Northwest ROC',
+    city: 'Seattle', state: 'WA', venue: 'Seattle Center',
+    startDate: '2025-09-13', endDate: '2025-09-14',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'south-sep-2025', tier: 'regional', name: 'Southern ROC',
+    city: 'Atlanta', state: 'GA', venue: 'Georgia World Congress Center',
+    startDate: '2025-09-20', endDate: '2025-09-21',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ne-roc-oct-2025', tier: 'regional', name: 'Northeast ROC',
+    city: 'Boston', state: 'MA', venue: 'Boston Convention Center',
+    startDate: '2025-10-04', endDate: '2025-10-05',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'mw-roc-oct-2025', tier: 'regional', name: 'Midwest ROC',
+    city: 'Chicago', state: 'IL', venue: 'McCormick Place',
+    startDate: '2025-10-18', endDate: '2025-10-19',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'sw-roc-oct-2025', tier: 'regional', name: 'Southwest ROC',
+    city: 'Phoenix', state: 'AZ', venue: 'Phoenix Convention Center',
+    startDate: '2025-10-25', endDate: '2025-10-26',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'sa-roc-oct-2025', tier: 'regional', name: 'South Atlantic ROC',
+    city: 'Charlotte', state: 'NC', venue: 'Charlotte Convention Center',
+    startDate: '2025-11-01', endDate: '2025-11-02',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'nw-roc-nov-2025', tier: 'regional', name: 'Northwest ROC',
+    city: 'Portland', state: 'OR', venue: 'Oregon Convention Center',
+    startDate: '2025-11-08', endDate: '2025-11-09',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'gm-roc-nov-2025', tier: 'regional', name: 'Great Midwest ROC',
+    city: 'St. Louis', state: 'MO', venue: 'America\'s Center',
+    startDate: '2025-11-15', endDate: '2025-11-16',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ca-roc-dec-2025', tier: 'regional', name: 'California ROC',
+    city: 'Los Angeles', state: 'CA', venue: 'LA Convention Center',
+    startDate: '2025-12-06', endDate: '2025-12-07',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'se-roc-dec-2025', tier: 'regional', name: 'Southeast ROC',
+    city: 'Miami', state: 'FL', venue: 'Miami Beach Convention Center',
+    startDate: '2025-12-13', endDate: '2025-12-14',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'tx-roc-jan-2026', tier: 'regional', name: 'Texas ROC',
+    city: 'Dallas', state: 'TX', venue: 'Kay Bailey Hutchison Convention Center',
+    startDate: '2026-01-10', endDate: '2026-01-11',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ma-roc-jan-2026', tier: 'regional', name: 'Mid-Atlantic ROC',
+    city: 'Philadelphia', state: 'PA', venue: 'Pennsylvania Convention Center',
+    startDate: '2026-01-24', endDate: '2026-01-25',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ny-roc-feb-2026', tier: 'regional', name: 'New York ROC',
+    city: 'New York', state: 'NY', venue: 'Javits Center',
+    startDate: '2026-02-07', endDate: '2026-02-08',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'fl-roc-feb-2026', tier: 'regional', name: 'Florida ROC',
+    city: 'Orlando', state: 'FL', venue: 'Orange County Convention Center',
+    startDate: '2026-02-21', endDate: '2026-02-22',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'pnw-mar-2026', tier: 'regional', name: 'Pacific Northwest Spring ROC',
+    city: 'Vancouver', state: 'WA', venue: 'Clark County Event Center',
+    startDate: '2026-03-07', endDate: '2026-03-08',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'col-roc-mar-2026', tier: 'regional', name: 'Colonial ROC',
+    city: 'Washington', state: 'DC', venue: 'Washington Convention Center',
+    startDate: '2026-03-21', endDate: '2026-03-22',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'gls-roc-apr-2026', tier: 'regional', name: 'Great Lakes ROC',
+    city: 'Detroit', state: 'MI', venue: 'Cobo Center',
+    startDate: '2026-04-04', endDate: '2026-04-05',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ne-roc-apr-2026', tier: 'regional', name: 'Northeast Spring ROC',
+    city: 'Hartford', state: 'CT', venue: 'Connecticut Convention Center',
+
+// ═══════════════════════════════════════════════════════════
+// SETUP SCREEN (first fencer, shown after signup)
+// ═══════════════════════════════════════════════════════════
+let setupGender = '', setupWeapon = '';
+
+function selectGender(g, el) {
+  setupGender = g;
+  document.querySelectorAll('#setup-view .gender-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectWeapon(w, el) {
+  setupWeapon = w;
+  document.querySelectorAll('#setup-view .weapon-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function completeSetup() {
+  const fn = document.getElementById('setup-firstname').value.trim();
+  const ln = document.getElementById('setup-lastname').value.trim();
+  if (!fn || !ln) { alert('Please enter first and last name'); return; }
+  if (!setupGender) { alert('Please select a gender'); return; }
+  if (!setupWeapon) { alert('Please select a weapon'); return; }
+  try {
+    const fencer = await api('POST', '/api/fencers', {
+      first_name: fn, last_name: ln,
+      gender: setupGender, weapon: setupWeapon,
+      dob: document.getElementById('setup-dob').value || null,
+      country: document.getElementById('setup-country').value,
+      club1: document.getElementById('setup-club1').value.trim(),
+      club2: document.getElementById('setup-club2').value.trim(),
+      coach1: document.getElementById('setup-coach1').value.trim(),
+      coach2: document.getElementById('setup-coach2').value.trim()
+    });
+    appData.fencers.push({
+      id: fencer.id,
+      firstName: fencer.first_name, lastName: fencer.last_name,
+      gender: fencer.gender, dob: fencer.dob || '', country: fencer.country || 'USA',
+      weapon: fencer.weapon,
+      club1: fencer.club1 || '', club2: fencer.club2 || '',
+      coach1: fencer.coach1 || '', coach2: fencer.coach2 || '',
+      photo: '', memberships: [], equipment: [], camps: [], lessons: []
+    });
+    document.getElementById('setup-view').style.display = 'none';
+    document.getElementById('app-shell').style.display = '';
+    addLogoutButton();
+    initApp();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════════════
+function initApp() {
+  updateSidebar();
+  navigate('dashboard');
+  renderFencers();
+  renderBrowse();
+  renderSeason();
+  renderFinancials();
+}
+
+function updateSidebar() {
+  const f = appData.fencers[0];
+  if (!f) return;
+  document.getElementById('sb-name').textContent = f.firstName + ' ' + f.lastName;
+  document.getElementById('sb-weapon').textContent = f.weapon.charAt(0).toUpperCase() + f.weapon.slice(1) + ' · ' + f.gender;
+  const av = document.getElementById('sb-avatar');
+  if (f.photo) { av.innerHTML = `<img src="${f.photo}" alt="">`; }
+  else { av.textContent = f.firstName[0] + f.lastName[0]; }
+}
+
+function navigate(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(view + '-view');
+  if (el) el.classList.add('active');
+  const ni = document.querySelector(`[data-view="${view}"]`);
+  if (ni) ni.classList.add('active');
+  if (view === 'dashboard') renderDashboard();
+  if (view === 'fencers') renderFencers();
+  if (view === 'browse') renderBrowse();
+  if (view === 'season') renderSeason();
+  if (view === 'financials') renderFinancials();
+  if (view === 'reports') renderReports();
+}
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+function renderDashboard() { renderCalendar(); renderStats(); renderAlerts(); renderUpcoming(); renderThisWeek(); }
+
+function renderCalendar() {
+  const offset = calOffset || 0;
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + (offset * 7));
+  startOfWeek.setHours(0,0,0,0);
+  const endOfPeriod = new Date(startOfWeek);
+  endOfPeriod.setDate(startOfWeek.getDate() + 27);
+  const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  document.getElementById('cal-range').textContent = `${fmt(startOfWeek)} – ${fmt(endOfPeriod)}`;
+  const weeks = document.getElementById('calendar-weeks');
+  weeks.innerHTML = '';
+  const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  for (let w = 0; w < 4; w++) {
+    const weekStart = new Date(startOfWeek);
+    weekStart.setDate(startOfWeek.getDate() + w * 7);
+    const weekRow = document.createElement('div');
+    weekRow.className = 'week-row';
+    const wLabel = document.createElement('div');
+    wLabel.className = 'week-label';
+    wLabel.textContent = `Wk ${getWeekNumber(weekStart)}`;
+    weekRow.appendChild(wLabel);
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(weekStart);
+      day.setDate(weekStart.getDate() + d);
+      const cell = document.createElement('div');
+      cell.className = 'day-cell';
+      const isToday = isSameDay(day, today);
+      const isPast = day < today && !isToday;
+      if (isToday) cell.classList.add('today');
+      if (isPast) cell.classList.add('past');
+      const numEl = document.createElement('div');
+      numEl.className = 'day-num';
+      numEl.textContent = day.getDate() === 1 ? MONTH_SHORT[day.getMonth()] + ' ' + day.getDate() : day.getDate();
+      cell.appendChild(numEl);
+      getEventsForDay(day).forEach(ev => {
+        const evEl = document.createElement('div');
+        evEl.className = 'cal-event' + (ev.type === 'nationals' ? ' nat' : ev.type === 'lesson' ? ' lesson' : ev.urgent ? ' urgent' : '');
+        evEl.textContent = ev.label;
+        evEl.title = ev.title;
+        cell.appendChild(evEl);
+        cell.classList.add('has-event');
+      });
+      weekRow.appendChild(cell);
+    }
+    weeks.appendChild(weekRow);
+  }
+}
+
+function getWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+function isSameDay(a, b) { return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+
+function getEventsForDay(day) {
+  const events = [];
+  appData.seasonEvents.forEach(se => {
+    const t = TOURNAMENTS.find(t => t.id === se.tournamentId);
+    if (!t) return;
+    const start = new Date(t.startDate + 'T00:00:00');
+    const end = new Date(t.endDate + 'T00:00:00');
+    const depart = se.departDate ? new Date(se.departDate + 'T00:00:00') : null;
+    const ret = se.returnDate ? new Date(se.returnDate + 'T00:00:00') : null;
+    if (isSameDay(day, start) || (day >= start && day <= end)) {
+      const daysUntil = Math.ceil((start - new Date()) / 86400000);
+      events.push({ label: t.name.split(' ').slice(0,2).join(' '), title: t.name + ' — ' + t.city + ', ' + t.state, type: t.tier === 'nationals' ? 'nationals' : 'regional', urgent: daysUntil <= 30 && !se.flightBooked });
+    }
+    if (depart && isSameDay(day, depart)) events.push({ label: '✈ Depart', title: 'Depart for ' + t.name, type: 'travel', urgent: false });
+    if (ret && isSameDay(day, ret)) events.push({ label: '🏠 Return', title: 'Return from ' + t.name, type: 'travel', urgent: false });
+  });
+  return events;
+}
+
+function calNav(dir) { calOffset += dir; renderCalendar(); }
+
+function renderStats() {
+  document.getElementById('stat-tournaments').textContent = appData.seasonEvents.length;
+  const today = new Date();
+  let minDays = null;
+  appData.seasonEvents.forEach(se => {
+    const t = TOURNAMENTS.find(x => x.id === se.tournamentId);
+    if (!t) return;
+    const d = Math.ceil((new Date(t.startDate) - today) / 86400000);
+    if (d > 0 && (minDays === null || d < minDays)) minDays = d;
+  });
+  document.getElementById('stat-days').textContent = minDays !== null ? minDays : '—';
+  let unbooked = 0;
+  appData.seasonEvents.forEach(se => {
+    const t = TOURNAMENTS.find(x => x.id === se.tournamentId);
+    if (!t) return;
+    const d = Math.ceil((new Date(t.startDate) - today) / 86400000);
+    if (d <= 30 && d > 0 && !se.flightBooked) unbooked++;
+  });
+  document.getElementById('stat-unbooked').textContent = unbooked;
+  const spend = appData.transactions.filter(tx => tx.txType==='expense').reduce((s,tx) => s + parseFloat(tx.amount||0), 0);
+  document.getElementById('stat-spend').textContent = '$' + spend.toLocaleString('en-US', {maximumFractionDigits:0});
+}
+
+function renderAlerts() {
+  const container = document.getElementById('alerts-container');
+  const today = new Date();
+  const alerts = [];
+  appData.seasonEvents.forEach(se => {
+    const t = TOURNAMENTS.find(x => x.id === se.tournamentId);
+    if (!t) return;
+    const d = Math.ceil((new Date(t.startDate) - today) / 86400000);
+    if (d > 0 && d <= 30 && !se.flightBooked) alerts.push({ type:'warning', icon:'✈️', title:`Flight not booked — ${t.name}`, desc:`${d} days until departure · ${t.city}, ${t.state}` });
+    if (d > 0 && d <= 30 && !se.hotelBooked) alerts.push({ type:'info', icon:'🏨', title:`Hotel not booked — ${t.name}`, desc:`${d} days until event` });
+  });
+  if (alerts.length === 0) { container.innerHTML = '<div style="font-size:13px;color:var(--gray-400);text-align:center;padding:12px">✅ All good! No urgent items.</div>'; return; }
+  container.innerHTML = alerts.map(a => `<div class="alert-card ${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join('');
+}
+
+function renderUpcoming() {
+  const today = new Date();
+  const upcoming = appData.seasonEvents.map(se => ({ se, t: TOURNAMENTS.find(x => x.id === se.tournamentId) })).filter(({t}) => t && new Date(t.startDate) >= today).sort((a,b) => new Date(a.t.startDate) - new Date(b.t.startDate)).slice(0,5);
+  const container = document.getElementById('upcoming-events');
+  if (upcoming.length === 0) { container.innerHTML = '<div style="font-size:13px;color:var(--gray-400);text-align:center;padding:24px">Add tournaments to see upcoming events</div>'; return; }
+  container.innerHTML = upcoming.map(({se,t}) => {
+    const days = Math.ceil((new Date(t.startDate) - today) / 86400000);
+    const isNat = t.tier === 'nationals';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--gray-100);cursor:pointer" onclick="navigate('season')"><div style="text-align:center;min-width:44px"><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${isNat?'var(--navy)':'var(--gold-dark)'};line-height:1">${days}</div><div style="font-size:10px;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.5px">days</div></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div><div style="font-size:11px;color:var(--gray-600)">${t.city}, ${t.state} · ${formatDate(t.startDate)}</div></div><span class="badge ${isNat?'badge-navy':'badge-gold'}" style="font-size:9px">${isNat?'NAT':'REG'}</span></div>`;
+  }).join('');
+}
+
+function renderThisWeek() {
+  const today = new Date();
+  const endOfWeek = new Date(today); endOfWeek.setDate(today.getDate() + 7);
+  document.getElementById('this-week-label').textContent = today.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' + endOfWeek.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const items = [];
+  appData.seasonEvents.forEach(se => {
+    const t = TOURNAMENTS.find(x => x.id === se.tournamentId);
+    if (!t) return;
+    const start = new Date(t.startDate + 'T00:00:00');
+    const depart = se.departDate ? new Date(se.departDate + 'T00:00:00') : null;
+    const ret = se.returnDate ? new Date(se.returnDate + 'T00:00:00') : null;
+    if (start >= today && start <= endOfWeek) items.push({ date: t.startDate, label: t.name, sub: t.city+', '+t.state, type: t.tier });
+    if (depart && depart >= today && depart <= endOfWeek) items.push({ date: se.departDate, label: '✈️ Depart — '+t.name, sub:'', type:'travel' });
+    if (ret && ret >= today && ret <= endOfWeek) items.push({ date: se.returnDate, label: '🏠 Return — '+t.name, sub:'', type:'travel' });
+  });
+  items.sort((a,b) => new Date(a.date)-new Date(b.date));
+  const container = document.getElementById('this-week-items');
+  if (items.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px"><div class="es-icon">☀️</div><div class="es-title">Clear week ahead</div></div>'; return; }
+  container.innerHTML = items.map(item => `<div class="summary-item"><div class="si-date">${formatDate(item.date)}</div><div class="si-title">${item.label}</div><span class="badge ${item.type==='nationals'?'badge-navy':item.type==='travel'?'badge-teal':'badge-gold'}">${item.type==='nationals'?'NAT':item.type==='travel'?'TRAVEL':'REG'}</span></div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// FENCERS
+// ═══════════════════════════════════════════════════════════
+function renderFencers() {
+  const container = document.getElementById('fencer-cards-container');
+  if (appData.fencers.length === 0) { container.innerHTML = `<div class="empty-state"><div class="es-icon">🏅</div><div class="es-title">No fencers yet</div><div class="es-desc">Add your first fencer to get started</div></div>`; return; }
+  container.innerHTML = appData.fencers.map((f,i) => {
+    const initials = (f.firstName[0]||'')+(f.lastName[0]||'');
+    return `<div class="fencer-card" onclick="showFencerDetail(${i})"><div class="fencer-card-banner"><div class="weapon-tag">${f.weapon.toUpperCase()}</div><div class="fencer-avatar-large" id="fc-avatar-${i}">${f.photo?`<img src="${f.photo}" alt="">`:initials}</div></div><div class="fencer-card-body"><div class="fencer-name">${f.firstName} ${f.lastName}</div><div class="fencer-meta">${f.gender==='M'?'♂ Male':'♀ Female'} · ${f.country} · ${calcAge(f.dob)} yrs</div><div class="fencer-tags"><span class="badge badge-${f.weapon}">${f.weapon.charAt(0).toUpperCase()+f.weapon.slice(1)}</span>${f.club1?`<span class="badge badge-gray">${f.club1}</span>`:''} ${f.coach1?`<span class="badge badge-teal">Coach: ${f.coach1}</span>`:''}</div><div class="fencer-actions"><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showFencerDetail(${i})">View Profile</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openEditFencerModal(${i})">Edit</button></div></div></div>`;
+  }).join('');
+}
+
+function calcAge(dob) {
+  if (!dob) return '?';
+  const d = new Date(dob); const today = new Date();
+  let age = today.getFullYear() - d.getFullYear();
+  const m = today.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+  return age;
+}
+
+async function showFencerDetail(idx) {
+  const f = appData.fencers[idx];
+  // Fetch fresh sub-items from API
+  try {
+    const fresh = await api('GET', '/api/fencers/' + f.id);
+    appData.fencers[idx].memberships = fresh.memberships || [];
+    appData.fencers[idx].equipment = fresh.equipment || [];
+    appData.fencers[idx].camps = fresh.camps || [];
+    appData.fencers[idx].lessons = fresh.lessons || [];
+  } catch(e) {}
+
+  const detail = document.getElementById('fencer-detail-view');
+  document.getElementById('fencer-list-view').style.display = 'none';
+  detail.style.display = '';
+  const initials = (f.firstName[0]||'')+(f.lastName[0]||'');
+  detail.innerHTML = `
+    <button class="btn btn-outline btn-sm" onclick="backToFencerList()" style="margin-bottom:16px">← Back to Fencers</button>
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:24px">
+      <div>
+        <div class="card" style="overflow:visible">
+          <div style="height:100px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);border-radius:12px 12px 0 0;position:relative">
+            <div class="fencer-avatar-large" style="position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);width:80px;height:80px;font-size:28px">
+              ${f.photo?`<img src="${f.photo}" alt="">`:initials}
+            </div>
+          </div>
+          <div style="padding:44px 20px 20px;text-align:center">
+            <div style="font-size:20px;font-weight:700">${f.firstName} ${f.lastName}</div>
+            <div style="font-size:13px;color:var(--gray-600);margin-top:4px">${f.gender==='M'?'♂ Male':'♀ Female'} · ${f.country}</div>
+            <div style="margin:12px 0;display:flex;justify-content:center;gap:6px;flex-wrap:wrap">
+              <span class="badge badge-${f.weapon}">${f.weapon.charAt(0).toUpperCase()+f.weapon.slice(1)}</span>
+              <span class="badge badge-gray">${calcAge(f.dob)} yrs</span>
+            </div>
+            <button class="btn btn-outline btn-sm" style="width:100%" onclick="uploadFencerPhoto(${idx})">📷 Update Photo</button>
+            <input type="file" id="fp-upload-${idx}" style="display:none" accept="image/*" onchange="handleProfilePhotoUpdate(event,${idx})">
+          </div>
+          <div style="padding:0 20px 20px">
+            <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Club Info</div>
+            ${f.club1?`<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--gray-100)">🏛 ${f.club1} <span style="font-size:11px;color:var(--gray-400)">Primary</span></div>`:''}
+            ${f.club2?`<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--gray-100)">🏛 ${f.club2} <span style="font-size:11px;color:var(--gray-400)">Secondary</span></div>`:''}
+            ${f.coach1?`<div style="font-size:13px;padding:6px 0;border-bottom:1px solid var(--gray-100)">👤 ${f.coach1} <span style="font-size:11px;color:var(--gray-400)">Primary Coach</span></div>`:''}
+            ${f.coach2?`<div style="font-size:13px;padding:6px 0">👤 ${f.coach2} <span style="font-size:11px;color:var(--gray-400)">Secondary Coach</span></div>`:''}
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sub-tabs">
+          <div class="sub-tab active" onclick="fencerSubTab('memberships',this,${idx})">🪪 Memberships</div>
+          <div class="sub-tab" onclick="fencerSubTab('equipment',this,${idx})">⚔️ Equipment</div>
+          <div class="sub-tab" onclick="fencerSubTab('camps',this,${idx})">🏕 Camps</div>
+          <div class="sub-tab" onclick="fencerSubTab('lessons',this,${idx})">📚 Lessons</div>
+        </div>
+        <div id="fencer-subtab-content"></div>
+      </div>
+    </div>`;
+  renderFencerSubTab('memberships', idx);
+}
+
+function uploadFencerPhoto(idx) { document.getElementById(`fp-upload-${idx}`).click(); }
+
+async function handleProfilePhotoUpdate(event, idx) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/photo', file);
+    appData.fencers[idx].photo = result.url;
+    await api('PUT', '/api/fencers/' + appData.fencers[idx].id, { ...fencerToApiShape(appData.fencers[idx]), photo_url: result.url });
+    updateSidebar();
+    showFencerDetail(idx);
+  } catch(e) { alert('Photo upload failed: ' + e.message); }
+}
+
+function fencerToApiShape(f) {
+  return { first_name: f.firstName, last_name: f.lastName, gender: f.gender, weapon: f.weapon, country: f.country, dob: f.dob || null, club1: f.club1, club2: f.club2, coach1: f.coach1, coach2: f.coach2, photo_url: f.photo };
+}
+
+function backToFencerList() {
+  document.getElementById('fencer-list-view').style.display = '';
+  document.getElementById('fencer-detail-view').style.display = 'none';
+  renderFencers();
+}
+
+function fencerSubTab(type, el, idx) {
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderFencerSubTab(type, idx);
+}
+
+function renderFencerSubTab(type, idx) {
+  const f = appData.fencers[idx];
+  const container = document.getElementById('fencer-subtab-content');
+  const items = f[type] || [];
+  const addBtns = { memberships:'Add Membership', equipment:'Add Equipment', camps:'Add Camp', lessons:'Add Lesson Schedule' };
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:14px;font-weight:700;color:var(--gray-600)">${items.length} item${items.length!==1?'s':''}</div><button class="btn btn-primary btn-sm" onclick="openFencerItemModal('${type}',${idx})">${addBtns[type]}</button></div>`;
+  if (items.length === 0) {
+    html += `<div class="empty-state" style="padding:40px"><div class="es-icon">${type==='memberships'?'🪪':type==='equipment'?'⚔️':type==='camps'?'🏕':'📚'}</div><div class="es-title">No ${type} yet</div></div>`;
+  } else {
+    html += items.map((item, i) => {
+      if (type === 'lessons') {
+        return `<div class="card" style="margin-bottom:12px"><div class="card-body" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:15px;font-weight:700">${item.coach_name||item.coachName||'Lesson'}</div><div style="font-size:12px;color:var(--gray-600);margin-top:4px">${item.days||''} · ${item.time||''} · $${item.rate||0}/lesson</div></div><button class="btn btn-danger btn-sm" onclick="deleteFencerItem('${type}',${idx},'${item.id}')">Delete</button></div></div></div>`;
+      }
+      return `<div class="card" style="margin-bottom:12px"><div class="card-body" style="padding:16px"><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:15px;font-weight:700">${item.name||item.org||item.description||'Item'}</div><div style="font-size:12px;color:var(--gray-600);margin-top:4px">${item.start_date||item.date||''} ${item.expiry_date?'· Expires: '+item.expiry_date:''} ${item.cost?'· $'+item.cost:''}</div></div><div style="display:flex;gap:8px;align-items:center">${item.receipt_url?`<button class="btn btn-teal btn-sm" onclick="viewReceipt('${item.receipt_url}')">Receipt</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteFencerItem('${type}',${idx},'${item.id}')">Delete</button></div></div></div></div>`;
+    }).join('');
+  }
+  container.innerHTML = html;
+}
+
+async function deleteFencerItem(type, fencerIdx, itemId) {
+  if (!confirm('Delete this item?')) return;
+  const fencer = appData.fencers[fencerIdx];
+  try {
+    await api('DELETE', `/api/fencers/${fencer.id}/${type}/${itemId}`);
+    fencer[type] = (fencer[type] || []).filter(x => x.id !== itemId);
+    renderFencerSubTab(type, fencerIdx);
+  } catch(e) { alert('Delete failed: ' + e.message); }
+}
+
+function viewReceipt(url) { window.open(url, '_blank'); }
+
+// Fencer item modal
+let currentFiType = '', currentFiFencerIdx = null;
+let lessonDays = [];
+
+function uploadZoneHtml(id, label) {
+  return `<div class="form-group"><label class="form-label">Receipt (optional)</label><div class="upload-zone" onclick="document.getElementById('${id}-file').click()"><input type="file" id="${id}-file" style="display:none" accept="image/*,.pdf" onchange="handleFiReceiptUpload(event,'${id}')"><div class="upload-icon">🧾</div><div class="upload-text" id="${id}-text">${label}</div></div><input type="hidden" id="${id}"></div>`;
+}
+
+async function handleFiReceiptUpload(event, id) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/receipt', file);
+    document.getElementById(id).value = result.url;
+    document.getElementById(id + '-text').textContent = '✅ ' + file.name;
+  } catch(e) { alert('Upload failed: ' + e.message); }
+}
+
+function openFencerItemModal(type, fencerIdx) {
+  currentFiType = type; currentFiFencerIdx = fencerIdx; lessonDays = [];
+  const titles = { memberships:'Add Membership', equipment:'Add Equipment', camps:'Add Camp', lessons:'Add Lesson Schedule' };
+  document.getElementById('fi-modal-title').textContent = titles[type];
+  let html = '';
+  if (type === 'memberships') {
+    html = `<div class="form-group"><label class="form-label">Organization</label><input type="text" class="form-control" id="fi-org" placeholder="USA Fencing, FIE, etc."></div><div class="form-row"><div class="form-group"><label class="form-label">Membership #</label><input type="text" class="form-control" id="fi-membnum"></div><div class="form-group"><label class="form-label">Cost ($)</label><input type="number" class="form-control" id="fi-cost" min="0" step="0.01"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-control" id="fi-date"></div><div class="form-group"><label class="form-label">Expiry Date</label><input type="date" class="form-control" id="fi-expiry"></div></div>${uploadZoneHtml('fi-receipt','Upload Receipt')}`;
+  } else if (type === 'equipment') {
+    html = `<div class="form-group"><label class="form-label">Equipment Name</label><input type="text" class="form-control" id="fi-name" placeholder="Blade, mask, jacket..."></div><div class="form-row"><div class="form-group"><label class="form-label">Brand/Model</label><input type="text" class="form-control" id="fi-brand"></div><div class="form-group"><label class="form-label">Cost ($)</label><input type="number" class="form-control" id="fi-cost" min="0" step="0.01"></div></div><div class="form-group"><label class="form-label">Purchase Date</label><input type="date" class="form-control" id="fi-date"></div>${uploadZoneHtml('fi-receipt','Upload Receipt')}`;
+  } else if (type === 'camps') {
+    html = `<div class="form-group"><label class="form-label">Camp Name</label><input type="text" class="form-control" id="fi-name" placeholder="Summer Intensive, etc."></div><div class="form-row"><div class="form-group"><label class="form-label">Location</label><input type="text" class="form-control" id="fi-location"></div><div class="form-group"><label class="form-label">Cost ($)</label><input type="number" class="form-control" id="fi-cost" min="0" step="0.01"></div></div><div class="form-row"><div class="form-group"><label class="form-label">Start Date</label><input type="date" class="form-control" id="fi-date"></div><div class="form-group"><label class="form-label">End Date</label><input type="date" class="form-control" id="fi-enddate"></div></div>${uploadZoneHtml('fi-receipt','Upload Receipt')}`;
+  } else if (type === 'lessons') {
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    html = `<div class="form-group"><label class="form-label">Coach Name</label><input type="text" class="form-control" id="fi-coach"></div><div class="form-group"><label class="form-label">Days</label><div class="lesson-schedule">${days.map(d=>`<div class="lesson-day" onclick="toggleLessonDay('${d}',this)"><div class="ld-name">${d}</div></div>`).join('')}</div></div><div class="form-row"><div class="form-group"><label class="form-label">Time</label><input type="text" class="form-control" id="fi-time" placeholder="e.g. 4:00 PM"></div><div class="form-group"><label class="form-label">Rate ($/lesson)</label><input type="number" class="form-control" id="fi-rate" min="0" step="0.01"></div></div><div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="fi-notes" rows="2"></textarea></div>`;
+  }
+  document.getElementById('fi-modal-body').innerHTML = html;
+  openModal('fencer-item-modal');
+}
+
+function toggleLessonDay(day, el) {
+  el.classList.toggle('selected');
+  if (lessonDays.includes(day)) lessonDays = lessonDays.filter(d => d !== day);
+  else lessonDays.push(day);
+}
+
+async function saveFencerItem() {
+  const f = appData.fencers[currentFiFencerIdx];
+  let body = {};
+  if (currentFiType === 'memberships') {
+    body = { org: document.getElementById('fi-org')?.value, membership_number: document.getElementById('fi-membnum')?.value, cost: document.getElementById('fi-cost')?.value || null, start_date: document.getElementById('fi-date')?.value || null, expiry_date: document.getElementById('fi-expiry')?.value || null, receipt_url: document.getElementById('fi-receipt')?.value || null };
+  } else if (currentFiType === 'equipment') {
+    body = { name: document.getElementById('fi-name')?.value, brand: document.getElementById('fi-brand')?.value, cost: document.getElementById('fi-cost')?.value || null, purchase_date: document.getElementById('fi-date')?.value || null, receipt_url: document.getElementById('fi-receipt')?.value || null };
+  } else if (currentFiType === 'camps') {
+    body = { name: document.getElementById('fi-name')?.value, location: document.getElementById('fi-location')?.value, cost: document.getElementById('fi-cost')?.value || null, start_date: document.getElementById('fi-date')?.value || null, end_date: document.getElementById('fi-enddate')?.value || null, receipt_url: document.getElementById('fi-receipt')?.value || null };
+  } else if (currentFiType === 'lessons') {
+    body = { coach_name: document.getElementById('fi-coach')?.value, days: lessonDays.join(','), time: document.getElementById('fi-time')?.value, rate: document.getElementById('fi-rate')?.value || null, notes: document.getElementById('fi-notes')?.value };
+  }
+  try {
+    const result = await api('POST', `/api/fencers/${f.id}/${currentFiType}`, body);
+    if (!f[currentFiType]) f[currentFiType] = [];
+    f[currentFiType].push(result);
+    closeModal('fencer-item-modal');
+    renderFencerSubTab(currentFiType, currentFiFencerIdx);
+    // Auto-add transaction if cost
+    const cost = parseFloat(body.cost || body.rate || 0);
+    if (cost > 0) {
+      const tx = await api('POST', '/api/transactions', { fencer_id: f.id, tx_type: 'expense', amount: cost, description: body.name || body.org || body.coach_name || currentFiType, category: currentFiType, date: body.start_date || body.purchase_date || new Date().toISOString().slice(0,10), receipt_url: body.receipt_url || null });
+      appData.transactions.push({ id: tx.id, txType: tx.tx_type, amount: tx.amount, description: tx.description, category: tx.category, date: tx.date?.slice(0,10)||'', tournamentId: '', fencerId: f.id, receipt: tx.receipt_url||'' });
+    }
+  } catch(e) { alert('Save failed: ' + e.message); }
+}
+
+// Add/Edit fencer modal
+let fmGender = '', fmWeapon = '', fmEditIdx = null;
+
+function openAddFencerModal() {
+  fmEditIdx = null; fmGender = ''; fmWeapon = '';
+  document.getElementById('fencer-modal-title').textContent = 'Add Fencer';
+  ['fm-firstname','fm-lastname','fm-club1','fm-club2','fm-coach1','fm-coach2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fm-dob').value = '';
+  document.getElementById('fm-photo').value = '';
+  document.getElementById('photo-preview-icon').textContent = '📷';
+  document.getElementById('photo-preview-text').textContent = 'Click to upload a photo';
+  document.querySelectorAll('#fencer-modal .gender-option').forEach(e => e.classList.remove('selected'));
+  document.querySelectorAll('#fencer-modal .weapon-option').forEach(e => e.classList.remove('selected'));
+  openModal('fencer-modal');
+}
+
+function openEditFencerModal(idx) {
+  const f = appData.fencers[idx];
+  fmEditIdx = idx; fmGender = f.gender; fmWeapon = f.weapon;
+  document.getElementById('fencer-modal-title').textContent = 'Edit Fencer';
+  document.getElementById('fm-firstname').value = f.firstName;
+  document.getElementById('fm-lastname').value = f.lastName;
+  document.getElementById('fm-dob').value = f.dob || '';
+  document.getElementById('fm-country').value = f.country || 'USA';
+  document.getElementById('fm-club1').value = f.club1 || '';
+  document.getElementById('fm-club2').value = f.club2 || '';
+  document.getElementById('fm-coach1').value = f.coach1 || '';
+  document.getElementById('fm-coach2').value = f.coach2 || '';
+  document.getElementById('fm-photo').value = f.photo || '';
+  fmSelectGender(f.gender); fmSelectWeapon(f.weapon);
+  openModal('fencer-modal');
+}
+
+function fmSelectGender(g) { fmGender = g; ['M','F'].forEach(x => document.getElementById('fm-gender-'+x)?.classList.toggle('selected', x===g)); }
+function fmSelectWeapon(w) { fmWeapon = w; ['foil','epee','sabre'].forEach(x => document.getElementById('fm-weapon-'+x)?.classList.toggle('selected', x===w)); }
+
+async function handleFencerPhoto(event) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/photo', file);
+    document.getElementById('fm-photo').value = result.url;
+    document.getElementById('photo-preview-icon').innerHTML = `<img src="${result.url}" style="width:48px;height:48px;object-fit:cover;border-radius:50%">`;
+    document.getElementById('photo-preview-text').textContent = file.name;
+  } catch(e) { alert('Photo upload failed: ' + e.message); }
+}
+
+async function saveFencer() {
+  const fn = document.getElementById('fm-firstname').value.trim();
+  const ln = document.getElementById('fm-lastname').value.trim();
+  if (!fn||!ln) { alert('Please enter name'); return; }
+  if (!fmGender) { alert('Please select gender'); return; }
+  if (!fmWeapon) { alert('Please select weapon'); return; }
+  const body = { first_name: fn, last_name: ln, gender: fmGender, weapon: fmWeapon, dob: document.getElementById('fm-dob').value||null, country: document.getElementById('fm-country').value, club1: document.getElementById('fm-club1').value.trim(), club2: document.getElementById('fm-club2').value.trim(), coach1: document.getElementById('fm-coach1').value.trim(), coach2: document.getElementById('fm-coach2').value.trim(), photo_url: document.getElementById('fm-photo').value };
+  try {
+    if (fmEditIdx !== null) {
+      const f = appData.fencers[fmEditIdx];
+      await api('PUT', '/api/fencers/'+f.id, body);
+      appData.fencers[fmEditIdx] = { ...f, firstName: fn, lastName: ln, gender: fmGender, weapon: fmWeapon, dob: body.dob||'', country: body.country, club1: body.club1, club2: body.club2, coach1: body.coach1, coach2: body.coach2, photo: body.photo_url };
+    } else {
+      const result = await api('POST', '/api/fencers', body);
+      appData.fencers.push({ id: result.id, firstName: result.first_name, lastName: result.last_name, gender: result.gender, weapon: result.weapon, dob: result.dob||'', country: result.country||'USA', club1: result.club1||'', club2: result.club2||'', coach1: result.coach1||'', coach2: result.coach2||'', photo: result.photo_url||'', memberships:[], equipment:[], camps:[], lessons:[] });
+    }
+    closeModal('fencer-modal');
+    updateSidebar();
+    renderFencers();
+  } catch(e) { alert('Save failed: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BROWSE TOURNAMENTS
+// ═══════════════════════════════════════════════════════════
+function renderBrowse() { filterTournaments(); }
+function resetFilters() {
+  ['filter-tier','filter-weapon','filter-gender','filter-age'].forEach(id => document.getElementById(id).value = 'all');
+  filterTournaments();
+}
+function filterTournaments() {
+  const tier = document.getElementById('filter-tier')?.value||'all';
+  const weapon = document.getElementById('filter-weapon')?.value||'all';
+  const gender = document.getElementById('filter-gender')?.value||'all';
+  const age = document.getElementById('filter-age')?.value||'all';
+  let filtered = TOURNAMENTS.filter(t => {
+    if (tier!=='all'&&t.tier!==tier) return false;
+    if (weapon!=='all'&&!t.weapons.includes(weapon)) return false;
+    if (gender!=='all'&&!t.genders.includes(gender)) return false;
+    if (age!=='all'&&!t.categories.includes(age)) return false;
+    return true;
+  });
+  const months = {};
+  filtered.forEach(t => {
+    const d = new Date(t.startDate);
+    const key = d.getFullYear()+'-'+String(d.getMonth()).padStart(2,'0');
+    const label = d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    if (!months[key]) months[key] = { label, tournaments:[] };
+    months[key].tournaments.push(t);
+  });
+  const addedIds = appData.seasonEvents.map(se => se.tournamentId);
+  const container = document.getElementById('tournament-browse-list');
+  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div class="es-icon">🔍</div><div class="es-title">No tournaments match your filters</div></div>'; return; }
+  container.innerHTML = Object.keys(months).sort().map(key => {
+    const {label, tournaments} = months[key];
+    return `<div class="month-group"><div class="month-header">${label}</div><div class="tournament-cards">${tournaments.map(t => renderTournamentCard(t, addedIds.includes(t.id))).join('')}</div></div>`;
+  }).join('');
+}
+
+function renderTournamentCard(t, isAdded) {
+  const isNat = t.tier==='nationals';
+  return `<div class="tournament-card ${isNat?'nationals':''} ${isAdded?'added':''}"><div class="tc-header"><div class="tc-tier ${isNat?'nat':'reg'}">${isNat?'🏆 NATIONALS':'📍 REGIONAL'}</div><div class="tc-name">${t.name}</div><div class="tc-location">📍 ${t.city}, ${t.state} ${t.venue?'· '+t.venue:''}</div></div><div class="tc-body"><div class="tc-dates">📅 ${formatDate(t.startDate)} – ${formatDate(t.endDate)}</div><div class="tc-tags">${t.weapons.map(w=>`<span class="badge badge-${w}">${w.charAt(0).toUpperCase()+w.slice(1)}</span>`).join('')}${t.categories.slice(0,3).map(c=>`<span class="badge badge-gray">${c}</span>`).join('')}${t.categories.length>3?`<span class="badge badge-gray">+${t.categories.length-3}</span>`:''}</div></div><div class="tc-footer"><a href="${t.url}" target="_blank" style="font-size:12px;color:var(--teal);text-decoration:none;font-weight:600">USA Fencing ↗</a>${isAdded?`<span class="badge badge-teal">✓ Added</span>`:`<button class="btn btn-primary btn-sm" onclick="openAddToSeason('${t.id}')">+ Add to Season</button>`}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADD TO SEASON
+// ═══════════════════════════════════════════════════════════
+let currentATSTournament = null;
+
+function openAddToSeason(tournamentId) {
+  const t = TOURNAMENTS.find(x => x.id === tournamentId);
+  if (!t) return;
+  currentATSTournament = t;
+  document.getElementById('ats-title').textContent = 'Add to My Season';
+  document.getElementById('ats-tournament-info').innerHTML = `<div style="font-weight:700;font-size:15px">${t.name}</div><div style="font-size:12px;color:var(--gray-600);margin-top:4px">📅 ${formatDate(t.startDate)} – ${formatDate(t.endDate)} · ${t.city}, ${t.state}</div>`;
+  document.getElementById('ats-fencer-checkboxes').innerHTML = appData.fencers.map(f=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;font-size:14px"><input type="checkbox" name="ats-fencer" value="${f.id}" checked>${f.firstName} ${f.lastName} — ${f.weapon.charAt(0).toUpperCase()+f.weapon.slice(1)}</label>`).join('') || '<div style="font-size:13px;color:var(--gray-400)">No fencers added yet</div>';
+  document.getElementById('ats-depart').value = '';
+  document.getElementById('ats-return').value = '';
+  document.getElementById('ats-notes').value = '';
+  openModal('add-to-season-modal');
+}
+
+async function confirmAddToSeason() {
+  if (!currentATSTournament) return;
+  const t = currentATSTournament;
+  const checkedFencers = Array.from(document.querySelectorAll('input[name="ats-fencer"]:checked')).map(el => el.value);
+  try {
+    const result = await api('POST', '/api/seasons', { tournament_id: t.id, tournament_name: t.name, city: t.city, state: t.state, start_date: t.startDate, end_date: t.endDate, depart_date: document.getElementById('ats-depart').value || null, return_date: document.getElementById('ats-return').value || null, fencer_ids: checkedFencers, notes: document.getElementById('ats-notes').value });
+    appData.seasonEvents.push({ id: result.id, tournamentId: t.id, fencerIds: checkedFencers, departDate: result.depart_date?.slice(0,10)||'', returnDate: result.return_date?.slice(0,10)||'', flightBooked: false, hotelBooked: false, carBooked: false, notes: result.notes||'', docs:[] });
+    closeModal('add-to-season-modal');
+    filterTournaments();
+    renderDashboard();
+    renderSeason();
+    navigate('season');
+  } catch(e) { alert('Failed to add: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MY SEASON
+// ═══════════════════════════════════════════════════════════
+function renderSeason() {
+  const container = document.getElementById('season-cards-container');
+  if (appData.seasonEvents.length === 0) { container.innerHTML = `<div class="empty-state"><div class="es-icon">📅</div><div class="es-title">No tournaments in your season yet</div><div class="es-desc">Browse tournaments and add them to your season</div><br><button class="btn btn-primary" onclick="navigate('browse')">Browse Tournaments</button></div>`; return; }
+  const today = new Date();
+  const sorted = [...appData.seasonEvents].sort((a,b) => {
+    const ta = TOURNAMENTS.find(x=>x.id===a.tournamentId);
+    const tb = TOURNAMENTS.find(x=>x.id===b.tournamentId);
+    return new Date(ta?.startDate) - new Date(tb?.startDate);
+  });
+  container.innerHTML = sorted.map(se => {
+    const t = TOURNAMENTS.find(x=>x.id===se.tournamentId); if (!t) return '';
+    const isNat = t.tier==='nationals';
+    const daysUntil = Math.ceil((new Date(t.startDate)-today)/86400000);
+    const bookStatus = se.flightBooked&&se.hotelBooked?'booked':se.flightBooked||se.hotelBooked?'partial':'unbooked';
+    const fencerBadges = (se.fencerIds||[]).map(fid => { const f=appData.fencers.find(f=>f.id===fid); return f?`<div class="sc-fencer-badge">${f.photo?`<img src="${f.photo}" alt="">`:f.firstName[0]+f.lastName[0]}</div>`:''; }).join('');
+    const urgentFlag = daysUntil>0&&daysUntil<=30&&bookStatus!=='booked'?`<span class="notif-dot" title="Booking needed within 30 days"></span>`:'';
+    return `<div class="season-card ${isNat?'nationals':''}" onclick="openTravelModal('${se.id}')"><div class="season-card-inner"><div><div class="sc-dates">${formatDate(t.startDate)} – ${formatDate(t.endDate)}</div>${se.departDate?`<div style="font-size:11px;color:var(--teal);margin-top:2px">✈ Depart ${formatDate(se.departDate)}</div>`:''}</div><div><div class="sc-title">${t.name} ${urgentFlag}</div><div class="sc-sub">📍 ${t.city}, ${t.state} · <span class="badge ${isNat?'badge-navy':'badge-gold'}" style="font-size:9px">${isNat?'Nationals':'Regional'}</span></div></div><div class="sc-fencer-badges">${fencerBadges}</div><div class="sc-booking"><div style="font-size:12px;color:var(--gray-600)"><span class="booking-dot ${bookStatus}"></span>${bookStatus==='booked'?'Booked':bookStatus==='partial'?'Partial':'Unbooked'}</div></div><div><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();removeFromSeason('${se.id}')">Remove</button></div></div></div>`;
+  }).join('');
+}
+
+async function removeFromSeason(seId) {
+  if (!confirm('Remove this tournament from your season?')) return;
+  try {
+    await api('DELETE', '/api/seasons/'+seId);
+    appData.seasonEvents = appData.seasonEvents.filter(se => se.id !== seId);
+    renderSeason(); renderDashboard(); filterTournaments();
+  } catch(e) { alert('Failed: ' + e.message); }
+}
+
+let currentTravelSeId = null;
+
+function openTravelModal(seId) {
+  currentTravelSeId = seId;
+  const se = appData.seasonEvents.find(x => x.id === seId);
+  const t = TOURNAMENTS.find(x => x.id === se.tournamentId);
+  if (!t) return;
+  document.getElementById('travel-modal-title').textContent = t.name + ' — Travel Details';
+  const content = document.getElementById('travel-modal-content');
+  content.innerHTML = `
+    <div class="travel-section"><div class="travel-section-title">📋 Event Info</div><div style="background:var(--gray-100);border-radius:var(--radius-sm);padding:14px"><div style="font-size:15px;font-weight:700">${t.name}</div><div style="font-size:13px;color:var(--gray-600);margin-top:4px">📅 ${formatDate(t.startDate)} – ${formatDate(t.endDate)}</div><div style="font-size:13px;color:var(--gray-600)">📍 ${t.venue||''}, ${t.city}, ${t.state}</div><a href="${t.url}" target="_blank" style="font-size:12px;color:var(--teal);font-weight:600">View on USA Fencing ↗</a></div></div>
+    <div class="travel-section"><div class="travel-section-title">📅 Travel Dates</div><div class="form-row"><div class="form-group"><label class="form-label">Departure Date</label><input type="date" class="form-control" id="td-depart" value="${se.departDate||''}"></div><div class="form-group"><label class="form-label">Return Date</label><input type="date" class="form-control" id="td-return" value="${se.returnDate||''}"></div></div></div>
+    <div class="travel-section"><div class="travel-section-title">✈️ Booking Status</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">${bookingToggle('Flight','td-flight',se.flightBooked)}${bookingToggle('Hotel','td-hotel',se.hotelBooked)}${bookingToggle('Car/Transport','td-car',se.carBooked)}</div></div>
+    <div class="travel-section"><div class="travel-section-title" style="justify-content:space-between"><span>💳 Expenses</span><button class="btn btn-primary btn-sm" onclick="openAddTransactionModal('${t.id}')">+ Add Expense</button></div><div id="travel-expenses">${renderTravelExpenses(se.tournamentId)}</div></div>
+    <div class="travel-section"><div class="travel-section-title">📄 Upload Receipts / Documents</div><div class="upload-zone" onclick="document.getElementById('travel-doc-upload').click()"><input type="file" id="travel-doc-upload" style="display:none" accept="image/*,.pdf" onchange="handleTravelDocUpload(event,'${seId}')"><div class="upload-icon">📎</div><div class="upload-text"><strong>Upload receipt or document</strong><br>Image or PDF</div></div><div id="travel-docs" style="margin-top:10px">${renderTravelDocs(se)}</div></div>
+    <div class="form-group" style="margin-top:16px"><label class="form-label">Notes</label><textarea class="form-control" id="td-notes" rows="2">${se.notes||''}</textarea></div>`;
+  openModal('travel-modal');
+}
+
+function bookingToggle(label, id, checked) {
+  return `<label style="background:var(--gray-100);border-radius:var(--radius-sm);padding:12px;text-align:center;cursor:pointer;border:2px solid ${checked?'var(--teal)':'transparent'}" id="${id}-card"><input type="checkbox" id="${id}" ${checked?'checked':''} onchange="updateBookingCard('${id}')" style="margin-bottom:6px"><div style="font-size:13px;font-weight:600">${label}</div></label>`;
+}
+function updateBookingCard(id) { const c=document.getElementById(id).checked; document.getElementById(id+'-card').style.borderColor=c?'var(--teal)':'transparent'; }
+
+function renderTravelExpenses(tournamentId) {
+  const txs = appData.transactions.filter(tx => tx.tournamentId === tournamentId && tx.txType === 'expense');
+  if (txs.length===0) return '<div style="font-size:13px;color:var(--gray-400);padding:8px 0">No expenses logged yet</div>';
+  const total = txs.reduce((s,tx)=>s+parseFloat(tx.amount||0),0);
+  return txs.map(tx=>`<div class="travel-item"><div class="ti-icon">💳</div><div class="ti-info"><div style="font-weight:600">${tx.description}</div><div style="font-size:11px;color:var(--gray-400)">${tx.category} · ${formatDate(tx.date)}</div></div><div class="ti-amount">$${parseFloat(tx.amount).toFixed(2)}</div></div>`).join('') + `<div style="text-align:right;font-weight:700;font-size:14px;padding:8px 0;color:var(--coral)">Total: $${total.toFixed(2)}</div>`;
+}
+
+function renderTravelDocs(se) {
+  if (!se.docs||se.docs.length===0) return '';
+  return se.docs.map(doc=>`<div class="travel-item"><div class="ti-icon">📄</div><div class="ti-info" style="cursor:pointer" onclick="viewReceipt('${doc.data}')">${doc.name}</div></div>`).join('');
+}
+
+async function handleTravelDocUpload(event, seId) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/document', file);
+    const docResult = await api('POST', '/api/seasons/'+seId+'/docs', { file_name: file.name, file_url: result.url });
+    const se = appData.seasonEvents.find(x=>x.id===seId);
+    if (!se.docs) se.docs = [];
+    se.docs.push({ name: file.name, data: result.url, id: docResult.id });
+    document.getElementById('travel-docs').innerHTML = renderTravelDocs(se);
+  } catch(e) { alert('Upload failed: ' + e.message); }
+}
+
+async function saveTravelDetails() {
+  const se = appData.seasonEvents.find(x=>x.id===currentTravelSeId);
+  const body = { depart_date: document.getElementById('td-depart')?.value||null, return_date: document.getElementById('td-return')?.value||null, flight_booked: document.getElementById('td-flight')?.checked||false, hotel_booked: document.getElementById('td-hotel')?.checked||false, car_booked: document.getElementById('td-car')?.checked||false, notes: document.getElementById('td-notes')?.value||'' };
+  try {
+    await api('PUT', '/api/seasons/'+currentTravelSeId, body);
+    Object.assign(se, { departDate: body.depart_date||'', returnDate: body.return_date||'', flightBooked: body.flight_booked, hotelBooked: body.hotel_booked, carBooked: body.car_booked, notes: body.notes });
+    closeModal('travel-modal');
+    renderSeason(); renderDashboard();
+  } catch(e) { alert('Save failed: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// FINANCIALS
+// ═══════════════════════════════════════════════════════════
+let finFilter = 'all';
+
+function renderFinancials() {
+  const txs = appData.transactions;
+  const income = txs.filter(t=>t.txType==='income').reduce((s,t)=>s+parseFloat(t.amount||0),0);
+  const expense = txs.filter(t=>t.txType==='expense').reduce((s,t)=>s+parseFloat(t.amount||0),0);
+  const net = income - expense;
+  document.getElementById('fin-income').textContent = '$'+income.toFixed(2);
+  document.getElementById('fin-expense').textContent = '$'+expense.toFixed(2);
+  const netEl = document.getElementById('fin-net');
+  netEl.textContent = '$'+Math.abs(net).toFixed(2);
+  netEl.className = 'fs-value net ' + (net>=0?'positive':'negative');
+  let filtered = txs;
+  if (finFilter==='income') filtered = txs.filter(t=>t.txType==='income');
+  else if (finFilter!=='all') filtered = txs.filter(t=>t.category===finFilter);
+  filtered = [...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const rows = document.getElementById('transaction-rows');
+  if (filtered.length===0) { rows.innerHTML='<div style="text-align:center;padding:32px;color:var(--gray-400);font-size:14px">No transactions</div>'; return; }
+  rows.innerHTML = filtered.map(tx => {
+    const f = appData.fencers.find(f=>f.id===tx.fencerId);
+    const t = TOURNAMENTS.find(t=>t.id===tx.tournamentId);
+    return `<div class="transaction-row"><div style="font-family:'DM Mono',monospace;font-size:12px">${formatDate(tx.date)}</div><div><div style="font-weight:600">${tx.description}</div>${t?`<div style="font-size:11px;color:var(--gray-400)">${t.name}</div>`:''}</div><div><span class="badge badge-gray">${tx.category}</span></div><div style="font-size:12px;color:var(--gray-600)">${f?f.firstName:'—'}</div><div class="tr-amount ${tx.txType}" style="text-align:right;font-family:'DM Mono',monospace">${tx.txType==='income'?'+':'-'}$${parseFloat(tx.amount).toFixed(2)}</div></div>`;
+  }).join('');
+}
+
+function finTab(tab, el) {
+  finFilter = tab;
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderFinancials();
+}
+
+function openAddTransactionModal(tournamentId) {
+  document.getElementById('tx-type').value='expense';
+  document.getElementById('tx-amount').value='';
+  document.getElementById('tx-desc').value='';
+  document.getElementById('tx-category').value='tournament';
+  document.getElementById('tx-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('tx-receipt').value='';
+  document.getElementById('receipt-upload-text').textContent='Click to upload receipt';
+  const tSelect=document.getElementById('tx-tournament');
+  tSelect.innerHTML='<option value="">— None —</option>'+appData.seasonEvents.map(se=>{const t=TOURNAMENTS.find(x=>x.id===se.tournamentId);return t?`<option value="${t.id}" ${t.id===tournamentId?'selected':''}>${t.name}</option>`:''}).join('');
+  const fSelect=document.getElementById('tx-fencer');
+  fSelect.innerHTML='<option value="">— All / General —</option>'+appData.fencers.map(f=>`<option value="${f.id}">${f.firstName} ${f.lastName}</option>`).join('');
+  openModal('transaction-modal');
+}
+
+async function handleReceiptUpload(event) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/receipt', file);
+    document.getElementById('tx-receipt').value = result.url;
+    document.getElementById('receipt-upload-text').textContent = '✅ ' + file.name;
+  } catch(e) { alert('Upload failed: ' + e.message); }
+}
+
+async function saveTransaction() {
+  const amount = parseFloat(document.getElementById('tx-amount').value);
+  if (!amount||amount<=0) { alert('Please enter a valid amount'); return; }
+  const desc = document.getElementById('tx-desc').value.trim();
+  if (!desc) { alert('Please enter a description'); return; }
+  try {
+    const result = await api('POST', '/api/transactions', { tx_type: document.getElementById('tx-type').value, amount, description: desc, category: document.getElementById('tx-category').value, date: document.getElementById('tx-date').value, tournament_id: document.getElementById('tx-tournament').value||null, fencer_id: document.getElementById('tx-fencer').value||null, receipt_url: document.getElementById('tx-receipt').value||null });
+    appData.transactions.push({ id: result.id, txType: result.tx_type, amount: result.amount, description: result.description, category: result.category, date: result.date?.slice(0,10)||'', tournamentId: result.tournament_id||'', fencerId: result.fencer_id||'', receipt: result.receipt_url||'' });
+    closeModal('transaction-modal');
+    renderFinancials(); renderDashboard();
+  } catch(e) { alert('Save failed: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════════════════════
+function renderReports() {
+  const byTournament = document.getElementById('report-by-tournament');
+  if (appData.seasonEvents.length===0) { byTournament.innerHTML='<div style="font-size:13px;color:var(--gray-400)">No tournaments in season</div>'; return; }
+  byTournament.innerHTML = appData.seasonEvents.map(se => {
+    const t = TOURNAMENTS.find(x=>x.id===se.tournamentId); if (!t) return '';
+    const txs = appData.transactions.filter(tx=>tx.tournamentId===se.tournamentId);
+    const total = txs.reduce((s,tx)=>s+parseFloat(tx.txType==='expense'?tx.amount:0),0);
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:13px"><div><div style="font-weight:600">${t.name}</div><div style="font-size:11px;color:var(--gray-400)">${formatDate(t.startDate)} · ${txs.length} transactions</div></div><div style="font-weight:700;color:var(--coral)">$${total.toFixed(2)}</div></div>`;
+  }).join('');
+  renderTemplates();
+}
+
+async function handleTemplateUpload(event) {
+  const file = event.target.files[0]; if (!file) return;
+  try {
+    const result = await uploadFile('/api/uploads/document', file);
+    const tmpl = await api('POST', '/api/transactions/report-templates', { name: file.name, file_url: result.url });
+    appData.templates.push({ id: tmpl.id, name: tmpl.name, data: tmpl.file_url, date: tmpl.uploaded_at?.slice(0,10)||'' });
+    renderTemplates();
+  } catch(e) { alert('Upload failed: ' + e.message); }
+}
+
+function renderTemplates() {
+  const container = document.getElementById('report-templates');
+  if (appData.templates.length===0) {
+    container.innerHTML = `<div class="upload-zone" onclick="document.getElementById('template-upload').click()"><input type="file" id="template-upload" style="display:none" accept=".pdf,.docx,.xlsx" onchange="handleTemplateUpload(event)"><div class="upload-icon">📄</div><div class="upload-text"><strong>Upload expense form template</strong><br>PDF, Word, or Excel</div></div>`;
+    return;
+  }
+  container.innerHTML = appData.templates.map(tmpl=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-100)"><div style="font-size:20px">📄</div><div style="flex:1"><div style="font-size:13px;font-weight:600;cursor:pointer" onclick="viewReceipt('${tmpl.data}')">${tmpl.name}</div><div style="font-size:11px;color:var(--gray-400)">${formatDate(tmpl.date)}</div></div><button class="btn btn-danger btn-sm" onclick="deleteTemplate('${tmpl.id}')">Delete</button></div>`).join('') + `<div class="upload-zone" style="margin-top:12px" onclick="document.getElementById('template-upload-2').click()"><input type="file" id="template-upload-2" style="display:none" accept=".pdf,.docx,.xlsx,image/*" onchange="handleTemplateUpload(event)"><div class="upload-text" style="font-size:12px">+ Upload another template</div></div>`;
+}
+
+async function deleteTemplate(id) {
+  try {
+    await api('DELETE', '/api/transactions/report-templates/'+id);
+    appData.templates = appData.templates.filter(t=>t.id!==id);
+    renderTemplates();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target===overlay) overlay.classList.remove('open'); });
+});
+
+</script>
+</body>
+</html>
