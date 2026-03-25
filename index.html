@@ -1490,7 +1490,7 @@ select.form-control { cursor: pointer; }
 // ═══════════════════════════════════════════════════════════
 // CONFIG — point this at your deployed backend
 // ═══════════════════════════════════════════════════════════
-const API_BASE = 'https://epeetrack-backend-production.up.railway.app'; // ← replace after deployment
+const API_BASE = 'https://YOUR-BACKEND-URL.com'; // ← replace after deployment
 
 // ═══════════════════════════════════════════════════════════
 // AUTH HELPERS
@@ -1939,6 +1939,68 @@ const TOURNAMENTS = [
   {
     id: 'ne-roc-apr-2026', tier: 'regional', name: 'Northeast Spring ROC',
     city: 'Hartford', state: 'CT', venue: 'Connecticut Convention Center',
+    startDate: '2026-04-18', endDate: '2026-04-19',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'sw-roc-apr-2026', tier: 'regional', name: 'Southwest Spring ROC',
+    city: 'Las Vegas', state: 'NV', venue: 'Las Vegas Convention Center',
+    startDate: '2026-04-25', endDate: '2026-04-26',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'so-roc-may-2026', tier: 'regional', name: 'Southern Spring ROC',
+    city: 'Nashville', state: 'TN', venue: 'Music City Center',
+    startDate: '2026-05-02', endDate: '2026-05-03',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'mw-roc-may-2026', tier: 'regional', name: 'Midwest Spring ROC',
+    city: 'Indianapolis', state: 'IN', venue: 'Indiana Convention Center',
+    startDate: '2026-05-09', endDate: '2026-05-10',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12','Y10'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'gl-roc-may-2026', tier: 'regional', name: 'Gulf Coast ROC',
+    city: 'New Orleans', state: 'LA', venue: 'Ernest N. Morial Convention Center',
+    startDate: '2026-05-16', endDate: '2026-05-17',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ca-roc-may-2026', tier: 'regional', name: 'California Spring ROC',
+    city: 'San Francisco', state: 'CA', venue: 'Moscone Center',
+    startDate: '2026-05-23', endDate: '2026-05-24',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'se-roc-jun-2026', tier: 'regional', name: 'Southeast Finals ROC',
+    city: 'Tampa', state: 'FL', venue: 'Tampa Convention Center',
+    startDate: '2026-06-06', endDate: '2026-06-07',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  },
+  {
+    id: 'ma-roc-jun-2026', tier: 'regional', name: 'Mid-Atlantic Summer ROC',
+    city: 'Baltimore', state: 'MD', venue: 'Baltimore Convention Center',
+    startDate: '2026-06-20', endDate: '2026-06-21',
+    weapons: ['foil','epee','sabre'], genders: ['M','F'],
+    categories: ['Senior','Cadet','Junior','Y14','Y12'],
+    url: 'https://member.usafencing.org/search/tournaments'
+  }
+];
 
 // ═══════════════════════════════════════════════════════════
 // SETUP SCREEN (first fencer, shown after signup)
